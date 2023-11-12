@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block center %} 
+<div class="grid grid-cols-3 gap-4">
+    {% for post in all_posts %}
+        
+        <div class="max-w-sm rounded overflow-hidden shadow-lg">
+            <div>
+                {% if request.user == post.author.user %}
+                    <a href="{% url 'posts:post-update' post.pk %}"><button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                        Update
+                    </button></a>
+                    <a href="{% url 'posts:post-delete' post.pk %}"><button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                        Delete
+                    </button></a>
+                {% endif %}
+            </div>
+            
+            <img class="w-full" alt="Sunset in the mountains">
+            <div class="px-6 py-4">
+                <p class="text-gray-700 text-base">
+                    {{post.content}}
+                </p>
+                <img src="{{ post.author.avatar.url}}">
+                <div class="font-bold text-m mb-2">{{post.author.user}} - {{ post.created|timesince}} ago</div>
+
+            </div>
+            <div class="px-6 pt-4 pb-2">
+                <form action="{% url 'posts:like-post-view' %}" method="POST" class="like-form" id="{{ post.id }}">
+                    {% csrf_token %}
+                    <input type="hidden" name="post_id" value="{{ post.id }}">
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded like-btn"  >
+                        {% if profile not in post.liked.all %}
+                            Like
+                        {% else %}
+                            Unlike
+                        {% endif %}
+                    </button>
+                    <div class="like-count">{{ post.num_likes }}</div>
+                    <span>likes</span>
+                </form>
+                
+                <span class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">#photography</span>
+                <span class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">#travel</span>
+                <span class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">#winter</span>
+            </div>
+            <div>
+                {% if post.comment_set.all %}
+                    {% for comment in post.comment_set.all  %}
+                    <p>{{ comment.body }}</p>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            <form action="" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="post_id" value="{{ post.id }}">
+                {{ comment_form }}
+                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" type="submit" name="submmit_comment">
+                    comment
+                </button>
+            </form>
+        </div>
+    {% endfor %}
+</div>
+{% endblock center %}
+
+{% block right %}
+
+{% if post_added %}
+    <div>Post added</div>    
+{% endif %}
+
+<form class="w-full max-w-sm" action="{% url 'posts:main-post-view' %}" method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ post_form }}
+    <div class="md:flex justify-end">
+        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" type="submit" name="submmit_post">
+            Send Post
+        </button>
+    </div>
+</form>
+    
+{% endblock right %}
+
+
+{% block scripts %}
+<script type="text/javascript" src="{% static 'js/posts.js' %}"></script>
+{% endblock %}

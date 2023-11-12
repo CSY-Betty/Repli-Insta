@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block center %}
+{{ object }}
+
+<img src="{{  object.avatar.url }}">
+
+{{ object.user }}
+
+{{ object.get_post_number }}
+
+{{ object.get_likes_given_number }}
+
+{{ object.get_likes_received_number }}
+
+{{ object.get_friends_number }}
+
+{% if len_posts %}
+    {% for post in posts  %}
+        {{ post.content }}
+    {% endfor %}
+
+{% else %}
+    <h1>No post</h1>
+
+{% endif %}
+
+{% if object.user not in relationship_receiver and object.user not in relationship_sender %}
+            <form action="{% url 'profiles:send-invite' %}" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="profile_pk" value="{{ object.pk }}">
+                <button class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center justify-center">
+                    <span>Add to friends</span>
+                </button>
+            </form>
+        {% endif %}
+
+
+        {% if object.user in relationship_receiver and request.user not in object.friends.all %}
+            <button class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center justify-center">
+                <span>Waiting for approval</span>
+            </button>
+        {% endif %}
+
+        {% if request.user in object.friends.all %}
+            <form action="{% url 'profiles:remove-friend' %}" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="profile_pk" value="{{ object.pk }}">
+                <button class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center justify-center">
+                    <span>Remove from friends</span>
+                </button>
+            </form>
+        {% endif %}   
+
+{% endblock center %}
