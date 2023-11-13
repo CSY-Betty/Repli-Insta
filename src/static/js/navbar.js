@@ -22,21 +22,14 @@ document.addEventListener('DOMContentLoaded', function () {
 document.addEventListener('DOMContentLoaded', function () {
 	const postButton = document.getElementById('postButton');
 	const postDialog = document.getElementById('postDialog');
-	// const closeDialogButton = document.getElementById('closeDialogButton');
 
-	// 顯示對話框的函數
-	function showDialog() {
+	postButton.addEventListener('click', function () {
 		postDialog.showModal();
-	}
+	});
 
-	// 關閉對話框的函數
-	function closeDialog() {
-		postDialog.close();
-	}
-
-	// 點擊"Settings"按鈕時顯示對話框
-	postButton.addEventListener('click', showDialog);
-
-	// // 點擊對話框內的"Close"按鈕時關閉對話框
-	// closeDialogButton.addEventListener('click', closeDialog);
+	postDialog.addEventListener('click', function (event) {
+		if (event.target === postDialog) {
+			postDialog.close();
+		}
+	});
 });

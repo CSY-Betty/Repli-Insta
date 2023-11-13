@@ -9,12 +9,38 @@ from django.contrib.auth.models import User
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import JsonResponse
 
 # Create your views here.
 
 
 @login_required
-def my_profile_view(request):
+def my_profile_setting(request):
+    user = request.user
+    profile = Profile.objects.get(user=user)
+    form = ProfileModelForm(request.POST, request.FILES, instance=profile)
+
+    if request.method == "POST":
+        if form.is_valid():
+            form.save()
+
+            data = {"status": "success", "message": "Operation completed successfully"}
+            return JsonResponse(data)
+        else:
+            print(form.errors)
+            data = {"status": "error", "message": "Form validation failed"}
+            return JsonResponse(data)
+    else:
+        context = {
+            "profile": profile,
+            "form": form,
+        }
+        form = ProfileModelForm(instance=profile)
+        return render(request, "profiles/myprofilesetting.html", context)
+
+
+@login_required
+def my_profile(request):
     profile = Profile.objects.get(user=request.user)
     form = ProfileModelForm(request.POST, request.FILES, instance=profile)
 

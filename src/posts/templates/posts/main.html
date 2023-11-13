@@ -3,11 +3,11 @@
 
 
 {% block center %} 
-<div class="grid grid-cols-3 gap-4">
+<div class="grid grid-cols-3 gap-4 py-4 ">
     {% for post in all_posts %}
         
-        <div class="max-w-sm rounded overflow-hidden shadow-lg">
-            <div>
+        <div class="max-w-sm rounded overflow-hidden shadow-lg hover:scale-105 transition-transform duration-300">
+            <!-- <div>
                 {% if request.user == post.author.user %}
                     <a href="{% url 'posts:post-update' post.pk %}"><button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                         Update
@@ -16,17 +16,23 @@
                         Delete
                     </button></a>
                 {% endif %}
-            </div>
+            </div> -->
             
-            <img class="w-full" alt="Sunset in the mountains">
+            <img class="w-full h-64" alt="Sunset in the mountains">
+            <div class="flex flex-row px-6 py-2 items-center">
+                <img class="h-8 w-8 rounded-full ring-2 ring-white" src="{{ post.author.avatar.url}}">
+                <div class="px-2">
+                    <div class="text-base mb-0">{{post.author.user}}</div>
+                    <div class="text-xs">{{ post.created|timesince}} ago</div>
+                </div>
+                
+            </div>
             <div class="px-6 py-4">
                 <p class="text-gray-700 text-base">
                     {{post.content}}
                 </p>
-                <img src="{{ post.author.avatar.url}}">
-                <div class="font-bold text-m mb-2">{{post.author.user}} - {{ post.created|timesince}} ago</div>
-
             </div>
+            
             <div class="px-6 pt-4 pb-2">
                 <form action="{% url 'posts:like-post-view' %}" method="POST" class="like-form" id="{{ post.id }}">
                     {% csrf_token %}
@@ -42,9 +48,9 @@
                     <span>likes</span>
                 </form>
                 
-                <span class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">#photography</span>
+                <!-- <span class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">#photography</span>
                 <span class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">#travel</span>
-                <span class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">#winter</span>
+                <span class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">#winter</span> -->
             </div>
             <div>
                 {% if post.comment_set.all %}
@@ -66,23 +72,6 @@
 </div>
 {% endblock center %}
 
-{% block right %}
-
-{% if post_added %}
-    <div>Post added</div>    
-{% endif %}
-
-<form class="w-full max-w-sm" action="{% url 'posts:main-post-view' %}" method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ post_form }}
-    <div class="md:flex justify-end">
-        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" type="submit" name="submmit_post">
-            Send Post
-        </button>
-    </div>
-</form>
-    
-{% endblock right %}
 
 
 {% block scripts %}

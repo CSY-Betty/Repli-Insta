@@ -1,40 +1,60 @@
 {% url 'index' as path_to_index %}
+{% load static %}
 
 <nav class="bg-white py-4 border-b border-gray-100">
     <div class="container mx-auto flex items-center justify-between">
         <div class="flex items-center">
-            <a href="/" class="text-black text-lg">Repli Insta</a>
+            <a href="/" class="text-rose-400 text-2xl font-semibold">Repli Insta</a>
         </div>
-        <div class="flex items-center relative">
-            <a href="#" class="text-black ml-6">search</a>
-            <button id="postButton" class="text-black ml-6">Sign up</button>
-            <button id="dropdownHoverButton" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" type="button">Log in     
-            </button>
+        <div class="flex flex-row justify-start items-center">
+            <a href="{% url 'posts:main-post-view' %}" class="px-2 text-rose-400 hover:scale-105 transition-transform duration-300 cursor-pointer">New Posts</a>
+            
+            {% if request.user.is_authenticated %}
+                <img src="{% static 'img/add.svg' %}" id="postButton" class="h-16 w-16 px-4 stroke-rose-800 hover:scale-105 transition-transform duration-300 cursor-pointer">
                 
-            <!-- Dropdown menu -->
-            <div id="dropdownHover" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow absolute top-full left-10 w-44 dark:bg-gray-700">
-                <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownHoverButton">
-                    <li>
-                    <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">My Profile</a>
-                    </li>
-                    <li>
-                    <a href="profiles/myprofile" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Settings</a>
-                    </li>
-                    <li>
-                    <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Sign out</a>
-                    </li>
-                </ul>
-            </div>
+                <div class="flex items-center relative">
+                    <img class="h-8 w-8 rounded-full ring-2 ring-white hover:scale-105 transition-transform duration-300 cursor-pointer" src="{{ user_avatar.url }}" id="dropdownHoverButton">
+
+                    <!-- Dropdown menu -->
+                    <div id="dropdownHover" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow absolute top-full right-0 w-44 dark:bg-gray-700">
+                        <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownHoverButton">
+                            <li>
+                            <a href="{% url 'profiles:my-profile' %}" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">My Profile</a>
+                            </li>
+                            <li>
+                            <a href="{% url 'profiles:my-profile-setting' %}" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Settings</a>
+                            </li>
+                            <li>
+                            <a href="{% url 'account_logout' %}" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Sign out</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            {% else %}
+                <div class="flex items-center relative">
+                    <button id="postButton" class="text-black ml-6 hover:text-rose-400">Sign up</button>
+                    <button id="dropdownHoverButton" class="text-black ml-6 hover:text-rose-400" type="button">Log in     
+                    </button>
+                </div>
+            {% endif %}
         </div>
+        
+        
     </div>
 </nav>
 
 <dialog id="postDialog" class="">
-    <form class="w-full max-w-sm" action="{% url 'posts:main-post-view' %}" method="POST" enctype="multipart/form-data">
+    {% if post_added %}
+    <div>Post added</div>    
+    {% endif %}
+
+    <form id="postForm" class="max-w-xl rounded overflow-hidden shadow-lg px-4 py-4" action="{% url 'posts:main-post-view' %}" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
-        {{ p_form }}
+        <div class="">{{ post_form.image }}</div>
+        <div class="py-4">{{ post_form.content }}</div>
+        
         <div class="md:flex justify-end">
-            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" type="submit">
+            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" type="submit" name="submmit_post">
                 Send Post
             </button>
         </div>
