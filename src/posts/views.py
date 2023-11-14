@@ -8,7 +8,8 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-
+from django.core import serializers
+import json
 
 # Create your views here.
 
@@ -50,6 +51,11 @@ def post_comment_create_and_list_view(request):
         "comment_form": comment_form,
         "post_added": post_added,
     }
+
+    all_posts_list = list(all_posts.values())
+
+    print(all_posts_list)
+    print(type(all_posts_list))
 
     return render(request, "posts/main.html", context)
 

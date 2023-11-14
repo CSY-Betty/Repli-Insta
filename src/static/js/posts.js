@@ -47,12 +47,12 @@ document.addEventListener('DOMContentLoaded', function () {
 	}
 });
 
-document.addEventListener('DOMContentLoaded', function () {
-	const allPosts = document.getElementById('allPosts');
-	allPosts.addEventListener('click', function (event) {
-		const clickedPost = event.target.closest('.eachPost');
-		const postId = clickedPost.getAttribute('value');
-		console.log(clickedPost);
-		console.log(postId);
-	});
-});
+// document.addEventListener('DOMContentLoaded', function () {
+// 	const allPosts = document.getElementById('allPosts');
+// 	allPosts.addEventListener('click', function (event) {
+// 		const clickedPost = event.target.closest('.eachPost');
+// 		const postId = clickedPost.getAttribute('value');
+// 		console.log(clickedPost);
+// 		console.log(postId);
+// 	});
+// });
