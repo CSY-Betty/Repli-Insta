@@ -43,15 +43,12 @@
     </div>
 </nav>
 
-<dialog id="postDialog" class="">
-    {% if post_added %}
-    <div>Post added</div>    
-    {% endif %}
-
-    <form id="postForm" class="max-w-xl rounded overflow-hidden shadow-lg px-4 py-4" action="{% url 'posts:main-post-view' %}" method="POST" enctype="multipart/form-data">
+<dialog id="postDialog" class="rounded">
+    <form id="postForm" class="max-w-xl rounded overflow-hidden shadow-lg px-4 py-4 grid gap-4" action="{% url 'posts:main-post-view' %}" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
-        <div class="">{{ post_form.image }}</div>
-        <div class="py-4">{{ post_form.content }}</div>
+
+        <input type="file" name="image" class="border-2 border-gray-300 py-2 rounded-md">
+        <textarea class="w-full py-4 border-2 border-gray-300 rounded-md" name="content"></textarea>
         
         <div class="md:flex justify-end">
             <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" type="submit" name="submmit_post">

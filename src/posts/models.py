@@ -9,7 +9,7 @@ class Post(models.Model):
     content = models.TextField()
     image = models.ImageField(
         upload_to="posts",
-        validators=[FileExtensionValidator(["png", "jpg", "jpeg"])],
+        validators=[FileExtensionValidator(["png", "jpg", "jpeg", "svg"])],
         blank=True,
     )
     liked = models.ManyToManyField(Profile, blank=True, related_name="likes")

@@ -16,9 +16,48 @@
 {% endblock left %}
 
 {% block center %}
-center
+<div class="grid grid-cols-3 gap-4 py-4 ">
+    {% for post in user_posts %}
+    
+        <div class="max-w-sm rounded overflow-hidden shadow-lg hover:scale-105 transition-transform duration-300"> 
+            {% if post.image %}
+                <img class="w-full h-64"  src="{{ post.image.url }}" alt="Post Image">
+            {% endif %}
+            <div class="flex flex-row px-6 py-2 items-center">
+                <img class="h-8 w-8 rounded-full ring-2 ring-white" src="{{ post.author.avatar.url}}">
+                <div class="px-2">
+                    <div class="text-base mb-0">{{post.author.user}}</div>
+                    <div class="text-xs">{{ post.created|timesince}} ago</div>
+                </div>
+                
+            </div>
+            <div class="px-6 py-4">
+                <p class="text-gray-700 text-base">
+                    {{post.content}}
+                </p>
+            </div>
+            
+            <div class="px-6 pt-4 pb-2">
+                <form action="{% url 'posts:like-post-view' %}" method="POST" class="like-form grid grid-cols-4 items-center" id="{{ post.id }}">
+                    {% csrf_token %}
+                    <div class="like-count col-span-1 text-right px-4">{{ post.num_likes }}</div>
+                    <span class="col-span-1">likes</span>
+                    <input type="hidden" name="post_id" value="{{ post.id }}">
+                    <button type="submit" class="col-span-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded like-btn "  >
+                        {% if profile not in post.liked.all %}
+                            Like
+                        {% else %}
+                            Unlike
+                        {% endif %}
+                    </button>
+                    
+                </form>
+            </div>
+        </div>
+    {% endfor %}
+</div>
 {% endblock center %}
 
 {% block right %}
-right
+
 {% endblock right %}

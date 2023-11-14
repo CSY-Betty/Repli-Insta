@@ -13,7 +13,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 # Create your views here.
 
 
-@login_required
+# @login_required
 def post_comment_create_and_list_view(request):
     all_posts = Post.objects.all()
     profile = Profile.objects.get(user=request.user)
@@ -23,14 +23,16 @@ def post_comment_create_and_list_view(request):
     post_added = False
 
     if "submmit_post" in request.POST:
-        print(request.POST)
         post_form = PostModelForm(request.POST, request.FILES)
+
         if post_form.is_valid():
             instance = post_form.save(commit=False)
             instance.author = profile
             instance.save()
             post_form = PostModelForm()
             post_added = True
+        else:
+            print(post_form)
 
     if "submmit_comment" in request.POST:
         comment_form = CommentModelForm(request.POST)

@@ -42,18 +42,12 @@ def my_profile_setting(request):
 @login_required
 def my_profile(request):
     profile = Profile.objects.get(user=request.user)
-    form = ProfileModelForm(request.POST, request.FILES, instance=profile)
+    user_posts = profile.posts.all()
 
-    confirm = False
-
-    if request.method == "POST":
-        if form.is_valid():
-            form.save()
-            confirm = True
-        else:
-            print(form.errors)
-
-    context = {"profile": profile, "form": form, "confirm": confirm}
+    context = {
+        "profile": profile,
+        "user_posts": user_posts,
+    }
 
     return render(request, "profiles/myprofile.html", context)
 

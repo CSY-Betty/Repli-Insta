@@ -136,7 +136,7 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 
 STATIC_ROOT = BASE_DIR.parent / "static_cdn" / "static_root"
 
-MEDIA_URL = "media/"
+MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR.parent / "static_cdn" / "media_root"
 
 

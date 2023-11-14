@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			const postId = likeForm.id;
 			const likeText = likeButton.innerText;
 			const url = likeForm.action;
+			console.log(url);
 
 			let res;
 			let likesCount = likeForm.querySelector('.like-count');
@@ -44,4 +45,14 @@ document.addEventListener('DOMContentLoaded', function () {
 				.catch((response) => console.log('erroe', response));
 		});
 	}
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+	const allPosts = document.getElementById('allPosts');
+	allPosts.addEventListener('click', function (event) {
+		const clickedPost = event.target.closest('.eachPost');
+		const postId = clickedPost.getAttribute('value');
+		console.log(clickedPost);
+		console.log(postId);
+	});
 });
