@@ -5,9 +5,7 @@
 {% block center %} 
 
 <div  id="allPosts" class="grid grid-cols-3 gap-4 py-4 ">
-    {% for post in all_posts %}
-        
-        
+    {% for post in all_posts %}        
         <div class="max-w-sm rounded overflow-hidden shadow-lg hover:scale-105 transition-transform duration-300">
             <div class="eachPost" value="{{ post.id }}">
                 {% if post.image %}
@@ -66,8 +64,17 @@
 {% endblock center %}
 
 {% block right %}
+<!-- <dialog id="postToShow" class="max-w-sm rounded overflow-hidden shadow-lg">
+    <img id="postToShowImage" class="w-full" src="" alt="post image">
+    
+    <div class="px-6 py-4">
+        <img id="postToShowAvatar" class="h-8 w-8 rounded-full ring-2 ring-white" src="" alt="AuthorAvatar">
 
-
+        <div class="font-bold text-xl mb-2" id="postToShowAuthor">The Coldest Sunset</div>
+        <p id="postToShowContent"class="text-gray-700 text-base"></p>
+    </div>
+  </div>
+</dialog> -->
     
 {% endblock right %}
 

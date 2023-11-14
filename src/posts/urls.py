@@ -4,6 +4,7 @@ from .views import (
     like_unlike_post,
     PostDeleteView,
     PostUpdateView,
+    get_post,
 )
 
 app_name = "posts"
@@ -13,4 +14,5 @@ urlpatterns = [
     path("liked/", like_unlike_post, name="like-post-view"),
     path("<pk>/delete/", PostDeleteView.as_view(), name="post-delete"),
     path("<pk>/update/", PostUpdateView.as_view(), name="post-update"),
+    path("get-post", get_post, name="get-post"),
 ]

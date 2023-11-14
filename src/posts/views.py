@@ -8,7 +8,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core import serializers
+from django.core.serializers import serialize
 import json
 
 # Create your views here.
@@ -17,7 +17,8 @@ import json
 # @login_required
 def post_comment_create_and_list_view(request):
     all_posts = Post.objects.all()
-    profile = Profile.objects.get(user=request.user)
+    # profile = Profile.objects.get(user=request.user)
+    profile = Profile.objects.all()
 
     post_form = PostModelForm()
     comment_form = CommentModelForm()
@@ -52,12 +53,54 @@ def post_comment_create_and_list_view(request):
         "post_added": post_added,
     }
 
-    all_posts_list = list(all_posts.values())
-
-    print(all_posts_list)
-    print(type(all_posts_list))
-
     return render(request, "posts/main.html", context)
+
+
+def get_post(request):
+    post_id = request.GET.get("post_id")
+    post = Post.objects.get(id=post_id)
+
+    if post_id is not None:
+        try:
+            post = Post.objects.get(id=post_id)
+            data = serialize(
+                "json", [post], fields=("id", "content", "created", "image")
+            )
+            data_fields = json.loads(data)[0]["fields"]
+            post_id = json.loads(data)[0]["pk"]
+
+            profile = post.author
+            profile_data = serialize(
+                "json",
+                [
+                    profile,
+                ],
+                fields=("first_name", "last_name", "avatar"),
+            )
+
+            profile_data_fields = json.loads(profile_data)[0]["fields"]
+            print(profile_data_fields)
+
+            response_data = {
+                "status": "success",
+                "post": {
+                    "id": post_id,
+                    "content": data_fields["content"],
+                    "created": data_fields["created"],
+                    "image_url": data_fields["image"],
+                },
+                "profile": {
+                    "avatar": profile_data_fields["avatar"],
+                    "first_name": profile_data_fields["first_name"],
+                    "last_name": profile_data_fields["last_name"],
+                },
+            }
+        except Post.DoesNotExist:
+            response_data = {"status": "error", "message": "Post not found"}
+    else:
+        response_data = {"status": "error", "message": "Post ID not provided"}
+
+    return JsonResponse(response_data)
 
 
 @login_required
