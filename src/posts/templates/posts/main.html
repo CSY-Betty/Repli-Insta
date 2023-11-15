@@ -13,8 +13,10 @@
                 {% endif %}
         
                 <div class="flex flex-row px-6 py-2 items-center">
-                    
-                    <img class="h-8 w-8 rounded-full ring-2 ring-white" src="{{ post.author.avatar.url}}">
+            
+                    <a href="{% url 'profiles:profile-detail-view' slug=post.author.slug %}">
+                        <img class="h-8 w-8 rounded-full ring-2 ring-white postAuthorAvatar" src="{{ post.author.avatar.url}}">
+                    </a>
                     <div class="px-2">
                         <div class="text-base mb-0">{{post.author.user}}</div>
                         <div class="text-xs">{{ post.created|timesince}} ago</div>

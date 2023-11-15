@@ -10,13 +10,13 @@ from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
-
+from django.core import serializers
 
 # Create your views here.
 
 
 @login_required
-def my_profile_setting(request):
+def profile_update(request):
     user = request.user
     profile = Profile.objects.get(user=user)
     form = ProfileModelForm(request.POST, request.FILES, instance=profile)
@@ -37,7 +37,7 @@ def my_profile_setting(request):
             "form": form,
         }
         form = ProfileModelForm(instance=profile)
-        return render(request, "profiles/myprofilesetting.html", context)
+        return render(request, "profiles/profileupdate.html", context)
 
 
 @login_required
@@ -51,25 +51,6 @@ def my_profile(request):
     }
 
     return render(request, "profiles/myprofile.html", context)
-
-
-""" another method
-    confirm = False
-
-    if request.method == "POST":
-        form = ProfileModelForm(request.POST, request.FILES, instance=profile)
-        if form.is_valid():
-            form.save()
-            confirm = True
-        else:
-            print(form.errors)
-    else:
-        form = ProfileModelForm(instance=profile)
-
-    context = {"profile": profile, "form": form, "confirm": confirm}
-
-    return render(request, "profiles/myprofile.html", context)
-"""
 
 
 @login_required
@@ -193,8 +174,6 @@ class ProfileListView(LoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         user = User.objects.get(username__iexact=self.request.user)
         profile = Profile.objects.get(user=user)
-        # pass profile to the template
-        # context["profile"] = profile
 
         # invited other users to friends
         relationship_receiver_query = Relationship.objects.filter(sender=profile)

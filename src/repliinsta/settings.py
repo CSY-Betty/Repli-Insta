@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
+    # djangorestframework
+    "rest_framework",
 ]
 
 LOGIN_REDIRECT_URL = "/posts"

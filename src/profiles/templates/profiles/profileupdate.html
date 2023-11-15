@@ -3,7 +3,7 @@
 
 {% block center %}
 <div class="py-4">
-    <form id="myprofilesetting" class="w-full grid grid-cols-3 gap-2" action="{% url 'profiles:my-profile-setting' %}" method="POST" enctype="multipart/form-data">
+    <form id="updateForm" class="w-full grid grid-cols-3 gap-2" action="{% url 'profiles:profile-update' %}" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="col-span-1 flex flex-col items-center">
             <img class="h-40 w-40 rounded-full ring-2 ring-white" src="{{ profile.avatar.url }}">
@@ -57,5 +57,5 @@
 
 
 {% block scripts %}
-<script type="text/javascript" src="{% static 'js/myprofilesetting.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/profileUpdate.js' %}"></script>
 {% endblock %}

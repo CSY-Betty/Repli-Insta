@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
-    my_profile_setting,
+    profile_update,
     my_profile,
     invites_received_view,
     invite_profile_list_view,
@@ -16,7 +16,7 @@ app_name = "profiles"
 
 urlpatterns = [
     path("", ProfileListView.as_view(), name="all-profiles-view"),
-    path("myprofilesetting/", my_profile_setting, name="my-profile-setting"),
+    path("profileupdate/", profile_update, name="profile-update"),
     path("myprofile/", my_profile, name="my-profile"),
     path("my-invites/", invites_received_view, name="my-invites-view"),
     path("to-invite/", invite_profile_list_view, name="invite-profiles-view"),
