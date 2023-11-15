@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
-from .models import Post, Like
+from .models import Post, Like, Comment
 from profiles.models import Profile
 from .forms import PostModelForm, CommentModelForm
 from django.views.generic import UpdateView, DeleteView
@@ -17,14 +17,15 @@ import json
 # @login_required
 def post_comment_create_and_list_view(request):
     all_posts = Post.objects.all()
-    # profile = Profile.objects.get(user=request.user)
     profile = Profile.objects.all()
 
     post_form = PostModelForm()
     comment_form = CommentModelForm()
     post_added = False
+    print("request.POST: ", request.POST)
 
     if "submmit_post" in request.POST:
+        profile = Profile.objects.get(user=request.user)
         post_form = PostModelForm(request.POST, request.FILES)
 
         if post_form.is_valid():
@@ -33,15 +34,19 @@ def post_comment_create_and_list_view(request):
             instance.save()
             post_form = PostModelForm()
             post_added = True
-        else:
-            print(post_form)
 
     if "submmit_comment" in request.POST:
+        print("submmit")
+        profile = Profile.objects.get(user=request.user)
         comment_form = CommentModelForm(request.POST)
+
+        post_ids = request.POST.getlist("post_id")
+        second_post_id = post_ids[1]
+
         if comment_form.is_valid():
             instance = comment_form.save(commit=False)
             instance.user = profile
-            instance.post = Post.objects.get(id=request.POST.get("post_id"))
+            instance.post = Post.objects.get(id=second_post_id)
             instance.save()
             comment_form = CommentModelForm()
 
@@ -63,11 +68,11 @@ def get_post(request):
     if post_id is not None:
         try:
             post = Post.objects.get(id=post_id)
-            data = serialize(
+            post_data = serialize(
                 "json", [post], fields=("id", "content", "created", "image")
             )
-            data_fields = json.loads(data)[0]["fields"]
-            post_id = json.loads(data)[0]["pk"]
+            data_fields = json.loads(post_data)[0]["fields"]
+            post_id = json.loads(post_data)[0]["pk"]
 
             profile = post.author
             profile_data = serialize(
@@ -79,7 +84,6 @@ def get_post(request):
             )
 
             profile_data_fields = json.loads(profile_data)[0]["fields"]
-            print(profile_data_fields)
 
             response_data = {
                 "status": "success",
@@ -165,3 +169,27 @@ class PostUpdateView(LoginRequiredMixin, UpdateView):
         else:
             form.add_error(None, "You need to be the author.")
             return super().form_invalid(form)
+
+
+def get_comment(request):
+    post_id = request.GET.get("post_id")
+    post = Post.objects.get(id=post_id)
+    comments = list(Comment.objects.filter(post=post))
+
+    comment_list = []
+    for comment in comments:
+        comment_data = serialize("json", [comment], fields=("user", "body", "created"))
+        comment_fields = json.loads(comment_data)[0]["fields"]
+
+        user_instance = comment_fields["user"]
+        user_name = Profile.objects.get(id=user_instance).first_name
+
+        comment_info = {
+            "content": comment_fields["body"],
+            "commenter": user_name,
+            "comment_time": comment_fields["created"],
+        }
+        comment_list.append(comment_info)
+
+    response_data = {"status": "success", "comments": comment_list}
+    return JsonResponse(response_data)

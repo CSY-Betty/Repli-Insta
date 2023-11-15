@@ -4,7 +4,7 @@
 
 {% block center %} 
 
-<div  id="allPosts" class="grid grid-cols-3 gap-4 py-4 ">
+<div  id="allPosts" class="pt-4 grid grid-cols-3 gap-4 ">
     {% for post in all_posts %}        
         <div class="max-w-sm rounded overflow-hidden shadow-lg hover:scale-105 transition-transform duration-300">
             <div class="eachPost" value="{{ post.id }}">
@@ -45,38 +45,36 @@
                     
                 </form>
             </div>
-            <div>
-                {% if post.comment_set.all %}
-                    {% for comment in post.comment_set.all  %}
-                    <p>{{ comment.body }}</p>
-                    {% endfor %}
-                {% endif %}
-            </div>
-            <form action="" method="POST">
-                {% csrf_token %}
-                <input type="hidden" name="post_id" value="{{ post.id }}">
-                {{ comment_form }}
-                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" type="submit" name="submmit_comment">
-                    comment
-                </button>
-            </form>
+            
         </div>
     {% endfor %}
 </div>
 {% endblock center %}
 
 {% block right %}
-<!-- <dialog id="postToShow" class="max-w-sm rounded overflow-hidden shadow-lg">
-    <img id="postToShowImage" class="w-full" src="" alt="post image">
+<div id="postToShow" class="z-20 ml-10 fixed w-80 rounded overflow-hidden shadow-lg flex flex-col">
+    <img id="postToShowImage" class="h-48 object-cover" src="" alt="post image">
     
-    <div class="px-6 py-4">
-        <img id="postToShowAvatar" class="h-8 w-8 rounded-full ring-2 ring-white" src="" alt="AuthorAvatar">
-
-        <div class="font-bold text-xl mb-2" id="postToShowAuthor">The Coldest Sunset</div>
-        <p id="postToShowContent"class="text-gray-700 text-base"></p>
+    <div class="flex flex-row px-6 py-2 items-center">
+        <img id="postToShowAvatar" class="h-8 w-8 rounded-full ring-2 ring-white postAuthorAvatar" src="" alt="AuthorAvatar">
+        <div class="text-base mb-0 px-2" id="postToShowAuthor"></div>
     </div>
-  </div>
-</dialog> -->
+    <p id="postToShowContent"class="text-gray-700 text-base px-6"></p>
+    <form action="{% url 'posts:main-post-view' %}" method="POST" class="comment-form">
+        {% csrf_token %}
+        <input type="hidden" name="post_id" value="">
+        {{ comment_form }}
+        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" type="submit" name="submmit_comment">
+            comment
+        </button>
+    </form>
+    
+    <div class="postComment px-2">
+    </div>
+    
+</div>
+
+
     
 {% endblock right %}
 

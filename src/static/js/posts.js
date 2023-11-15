@@ -46,36 +46,99 @@ document.addEventListener('DOMContentLoaded', function () {
 	}
 });
 
-// show post
-// document.addEventListener('DOMContentLoaded', function () {
-// 	const allPosts = document.getElementById('allPosts');
-// 	allPosts.addEventListener('click', function (event) {
-// 		const clickedPost = event.target.closest('.eachPost');
-// 		const postId = clickedPost.getAttribute('value');
+document.addEventListener('DOMContentLoaded', function () {
+	const allPosts = document.getElementById('allPosts');
+	allPosts.addEventListener('click', function (event) {
+		const clickedPost = event.target.closest('.eachPost');
+		const postId = clickedPost.getAttribute('value');
+		const urlWithParams = `get-post?post_id=${postId}`;
 
-// 		const urlWithParams = `get-post?post_id=${postId}`;
+		fetch(urlWithParams, {
+			method: 'GET',
+			headers: { 'Content-Type': 'application/json' },
+		})
+			.then((response) => response.json())
+			.then(function (data) {
+				const postToShow = document.getElementById('postToShow');
+				const imageElement = postToShow.querySelector('img');
+				imageElement.src = '/media/' + data.post.image_url;
+				const postToShowAvatar =
+					document.getElementById('postToShowAvatar');
+				postToShowAvatar.src = '/media/' + data.profile.avatar;
+				const postToShowAuthor =
+					document.getElementById('postToShowAuthor');
+				postToShowAuthor.innerText = data.profile.first_name;
+				const postToShowContent =
+					document.getElementById('postToShowContent');
+				postToShowContent.innerText = data.post.content;
 
-// 		fetch(urlWithParams, {
-// 			method: 'GET',
-// 			headers: { 'Content-Type': 'application/json' },
-// 		})
-// 			.then((response) => response.json())
-// 			.then(function (data) {
-// 				const postToShow = document.getElementById('postToShow');
-// 				const imageElement = postToShow.querySelector('img');
-// 				imageElement.src = '/media/' + data.post.image_url;
-// 				const postToShowAvatar =
-// 					document.getElementById('postToShowAvatar');
-// 				postToShowAvatar.src = '/media/' + data.profile.avatar;
-// 				const postToShowAuthor =
-// 					document.getElementById('postToShowAuthor');
-// 				postToShowAuthor.innerText = data.profile.first_name;
-// 				const postToShowContent =
-// 					document.getElementById('postToShowContent');
-// 				postToShowContent.innerText = data.profile.content;
-// 				postToShow.showModal();
-// 				console.log(data.profile.first_name);
-// 			})
-// 			.catch((response) => console.log('erroe', response));
-// 	});
-// });
+				const postIdInput = document.querySelector(
+					'input[name="post_id"]'
+				);
+				postIdInput.value = postId;
+			})
+			.catch((response) => console.log('error', response));
+
+		const commentUrl = `get-comment?post_id=${postId}`;
+		const postCommentContainer = postToShow.querySelector('.postComment');
+		fetch(commentUrl, {
+			method: 'GET',
+			headers: { 'Content-Type': 'application/json' },
+		})
+			.then((response) => response.json())
+			.then(function (data) {
+				console.log(data.comments);
+
+				// 清空評論容器，以防止重複插入
+				postCommentContainer.innerHTML = '';
+
+				// 迴圈處理每個評論
+				data.comments.forEach((comment) => {
+					const commentElement = document.createElement('div');
+					commentElement.innerHTML = `
+						<p>${comment.content}</p>
+						<p>Commenter: ${comment.commenter}</p>
+						<p>Comment Time: ${comment.comment_time}</p>
+						<hr>
+					`;
+					postCommentContainer.appendChild(commentElement);
+				});
+			})
+			.catch((error) => console.log('error', error));
+	});
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+	const commentForm = document.querySelector('.comment-form');
+
+	commentForm.addEventListener('submit', function (event) {
+		event.preventDefault();
+
+		const url = commentForm.action;
+		console.log(url);
+		const postIdInput = document.querySelector('input[name="post_id"]');
+		postId = postIdInput.value;
+
+		const formData = new FormData(commentForm);
+
+		let csrfToken = commentForm.querySelector(
+			'input[name=csrfmiddlewaretoken]'
+		).value;
+
+		formData.append('submmit_comment', 'submmit_comment');
+		formData.append('post_id', postId);
+
+		fetch(url, {
+			method: 'POST',
+			headers: {
+				'X-CSRFTOKEN': csrfToken,
+			},
+			body: formData,
+		})
+			.then((response) => response.json())
+			.then(function (data) {
+				window.location.href = window.location.href;
+			})
+			.catch((response) => console.log('error', response));
+	});
+});
