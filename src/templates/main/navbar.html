@@ -32,9 +32,9 @@
                 </div>
             {% else %}
                 <div class="flex items-center relative">
-                    <button id="postButton" class="text-black ml-6 hover:text-rose-400">Sign up</button>
-                    <button id="dropdownHoverButton" class="text-black ml-6 hover:text-rose-400" type="button">Log in     
-                    </button>
+                    <a href="{% url 'account_signup' %}" class="text-black ml-6 hover:text-rose-400">Sign up</a>
+                    <a href="{% url 'account_login' %}" class="text-black ml-6 hover:text-rose-400">Sign in</a>
+                            
                 </div>
             {% endif %}
         </div>
