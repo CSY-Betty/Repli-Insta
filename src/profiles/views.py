@@ -160,7 +160,7 @@ def profile_list_view(request):
 """
 
 
-class ProfileListView(LoginRequiredMixin, ListView):
+class ProfileListView(ListView):
     model = Profile
     template_name = "profiles/profile_list.html"
     # default: context_object_name = "object_list"

@@ -1,6 +1,6 @@
 {
 	"scripts": {
-		"dev": "tailwindcss -i src/static/tw/input.css -o src/static/css/repliinsta-ui.css --watch"
+		"dev": "tailwindcss -i src/static/css/input.css -o src/static/css/repliinsta-ui.css --watch"
 	},
 	"devDependencies": {
 		"tailwindcss": "^3.3.5"
