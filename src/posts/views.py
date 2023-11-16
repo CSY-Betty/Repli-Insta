@@ -181,12 +181,16 @@ def get_comment(request):
         comment_data = serialize("json", [comment], fields=("user", "body", "created"))
         comment_fields = json.loads(comment_data)[0]["fields"]
 
-        user_instance = comment_fields["user"]
-        user_name = Profile.objects.get(id=user_instance).first_name
+        commenter_instance = comment_fields["user"]
+        commenter_profile = Profile.objects.get(id=commenter_instance)
+
+        commenter_avatar = commenter_profile.avatar.url
+        commenter = commenter_profile.user.username
 
         comment_info = {
             "content": comment_fields["body"],
-            "commenter": user_name,
+            "commenter_avatar": commenter_avatar,
+            "commenter": commenter,
             "comment_time": comment_fields["created"],
         }
         comment_list.append(comment_info)

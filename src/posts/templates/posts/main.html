@@ -52,7 +52,7 @@
 {% endblock center %}
 
 {% block right %}
-<div id="postToShow" class="z-20 ml-10 fixed w-80 rounded overflow-hidden shadow-lg flex flex-col">
+<div id="postToShow" class="hidden z-20 ml-10 fixed w-80 rounded overflow-hidden shadow-lg flex flex-col transform transition-transform ease-in-out duration-300">
     <img id="postToShowImage" class="h-48 object-cover" src="" alt="post image">
     
     <div class="flex flex-row px-6 py-2 items-center">
@@ -60,7 +60,7 @@
         <div class="text-base mb-0 px-2" id="postToShowAuthor"></div>
     </div>
     <p id="postToShowContent"class="text-gray-700 text-base px-6"></p>
-    <form action="{% url 'posts:main-post-view' %}" method="POST" class="comment-form">
+    <form action="{% url 'posts:main-post-view' %}" method="POST" class="comment-form px-4 py-4">
         {% csrf_token %}
         <input type="hidden" name="post_id" value="">
         {{ comment_form }}

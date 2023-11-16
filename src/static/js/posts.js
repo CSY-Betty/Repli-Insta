@@ -60,6 +60,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			.then((response) => response.json())
 			.then(function (data) {
 				const postToShow = document.getElementById('postToShow');
+
 				const imageElement = postToShow.querySelector('img');
 				imageElement.src = '/media/' + data.post.image_url;
 				const postToShowAvatar =
@@ -76,6 +77,8 @@ document.addEventListener('DOMContentLoaded', function () {
 					'input[name="post_id"]'
 				);
 				postIdInput.value = postId;
+
+				postToShow.classList.remove('hidden');
 			})
 			.catch((response) => console.log('error', response));
 
@@ -96,11 +99,13 @@ document.addEventListener('DOMContentLoaded', function () {
 				data.comments.forEach((comment) => {
 					const commentElement = document.createElement('div');
 					commentElement.innerHTML = `
+						<div class="flex flex-row py-2">
+						<img src="${comment.commenter_avatar}" class="h-8 w-8 rounded-full ring-2 ring-white">
 						<p>${comment.content}</p>
-						<p>Commenter: ${comment.commenter}</p>
-						<p>Comment Time: ${comment.comment_time}</p>
-						<hr>
+						</div>
+						
 					`;
+
 					postCommentContainer.appendChild(commentElement);
 				});
 			})
