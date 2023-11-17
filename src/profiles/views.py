@@ -11,8 +11,20 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 from django.core import serializers
+from .serializers import ProfileSerializer, ProfilePostSerializer
+from rest_framework.response import Response
+from rest_framework.renderers import JSONOpenAPIRenderer, JSONRenderer
+from rest_framework.generics import ListAPIView
 
 # Create your views here.
+
+
+def profiles(request):
+    return render(request, "profiles/profiles.html")
+
+
+def profile(request, slug):
+    return render(request, "profiles/profile.html", {"slug": slug})
 
 
 @login_required
@@ -108,9 +120,9 @@ def invite_profile_list_view(request):
     return render(request, "profiles/to_invite_list.html", context)
 
 
-class ProfileDetailView(LoginRequiredMixin, DetailView):
+class ProfileDetailView(DetailView):
     model = Profile
-    template_name = "profiles/detail.html"
+    template_name = "profiles/profile.html"
 
     def get_object(self, slug=None):
         slug = self.kwargs.get("slug")
@@ -147,56 +159,72 @@ class ProfileDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-""" function view
-def profile_list_view(request):
-    user = request.user
+# class ProfileListView(ListView):
+#     model = Profile
+#     template_name = "profiles/profile_list.html"
+#     # default: context_object_name = "object_list"
+#     context_object_name = "sender"
 
-    sender = Profile.objects.get_all_profiles(user)
-    print(Relationship.objects.invitations_received)
+#     def get_queryset(self) -> QuerySet[Any]:
+#         query = Profile.objects.get_all_profiles(self.request.user)
+#         return query
 
-    context = {"sender": sender}
+#     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+#         context = super().get_context_data(**kwargs)
+#         user = User.objects.get(username__iexact=self.request.user)
+#         profile = Profile.objects.get(user=user)
 
-    return render(request, "profiles/profile_list.html", context)
-"""
+#         # invited other users to friends
+#         relationship_receiver_query = Relationship.objects.filter(sender=profile)
+#         # invited by other users to friends
+#         relationship_sender_query = Relationship.objects.filter(receiver=profile)
+
+#         relationship_receiver = []
+#         relationship_sender = []
+
+#         for item in relationship_receiver_query:
+#             relationship_receiver.append(item.receiver.user)
+
+#         for item in relationship_sender_query:
+#             relationship_sender.append(item.sender.user)
+
+#         context["relationship_receiver"] = relationship_receiver
+#         context["relationship_sender"] = relationship_sender
+
+#         context["is_empty"] = False
+#         if len(self.get_queryset()) == 0:
+#             context["is_empty"] = True
+
+#         return context
 
 
-class ProfileListView(ListView):
-    model = Profile
-    template_name = "profiles/profile_list.html"
-    # default: context_object_name = "object_list"
-    context_object_name = "sender"
+class ProfileListView(ListAPIView):
+    serializer_class = ProfileSerializer
+    renderer_classes = [JSONOpenAPIRenderer]
 
-    def get_queryset(self) -> QuerySet[Any]:
-        query = Profile.objects.get_all_profiles(self.request.user)
-        return query
+    def get_queryset(self):
+        user = self.request.user
+        queryset = Profile.objects.get_all_profiles(user)
 
-    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
-        context = super().get_context_data(**kwargs)
-        user = User.objects.get(username__iexact=self.request.user)
-        profile = Profile.objects.get(user=user)
+        return queryset
 
-        # invited other users to friends
-        relationship_receiver_query = Relationship.objects.filter(sender=profile)
-        # invited by other users to friends
-        relationship_sender_query = Relationship.objects.filter(receiver=profile)
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
 
-        relationship_receiver = []
-        relationship_sender = []
+        return Response(serializer.data)
 
-        for item in relationship_receiver_query:
-            relationship_receiver.append(item.receiver.user)
 
-        for item in relationship_sender_query:
-            relationship_sender.append(item.sender.user)
+class ProfilePostView(ListAPIView):
+    serializer_class = ProfilePostSerializer
+    renderer_classes = [JSONOpenAPIRenderer]
 
-        context["relationship_receiver"] = relationship_receiver
-        context["relationship_sender"] = relationship_sender
+    def get(self, request, *args, **kwargs):
+        slug = request.GET.get("slug")
+        profile = Profile.objects.get(slug=slug)
+        serializer = ProfilePostSerializer(profile)
 
-        context["is_empty"] = False
-        if len(self.get_queryset()) == 0:
-            context["is_empty"] = True
-
-        return context
+        return Response(serializer.data)
 
 
 @login_required
