@@ -71,19 +71,57 @@ async function renderFriendList() {
 
 		let friendStatus;
 		if (relation.status != 'accepted') {
-			friendStatus = document.createElement('button');
+			friendStatus = document.createElement('div');
 			friendStatus.classList.add(
 				'friendStatus',
 				'basis-1/5',
-				'bg-blue-500',
-				'hover:bg-blue-700',
-				'text-white',
-				'font-bold',
-				'py-2',
-				'px-4',
-				'rounded'
+				'flex',
+				'flex-col',
+				'gap-2'
 			);
-			friendStatus.innerText = await renderFriendRelate(relation);
+			const relatStatus = await renderFriendRelate(relation);
+			if (relatStatus === 'Waiting Approved') {
+				const waitApprove = document.createElement('div');
+				waitApprove.innerText = relatStatus;
+				waitApprove.classList.add(
+					'bg-slate-300',
+					'text-white',
+					'font-bold',
+					'py-2',
+					'px-4',
+					'rounded',
+					'text-center'
+				);
+				friendStatus.appendChild(waitApprove);
+			} else {
+				const acceptButton = document.createElement('button');
+				acceptButton.innerText = 'Accept';
+				acceptButton.classList.add(
+					'AcceptButton',
+					'bg-green-500',
+					'hover:bg-green-700',
+					'text-white',
+					'font-bold',
+					'py-2',
+					'px-4',
+					'rounded'
+				);
+
+				const rejectButton = document.createElement('button');
+				rejectButton.innerText = 'Reject';
+				rejectButton.classList.add(
+					'RejectButton',
+					'bg-red-400',
+					'hover:bg-red-700',
+					'text-white',
+					'font-bold',
+					'py-2',
+					'px-4',
+					'rounded'
+				);
+				friendStatus.appendChild(acceptButton);
+				friendStatus.appendChild(rejectButton);
+			}
 		}
 
 		friendInfo.appendChild(friendName);
