@@ -10,55 +10,63 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.serializers import serialize
 import json
+from .serializers import PostProfileSerializer, PostSerializer, CommentSerializer
+from rest_framework.generics import ListAPIView, CreateAPIView
+from rest_framework.response import Response
+from rest_framework.renderers import JSONOpenAPIRenderer
 
 # Create your views here.
 
 
+def posts(request):
+    return render(request, "posts/posts.html")
+
+
 # @login_required
-def post_comment_create_and_list_view(request):
-    all_posts = Post.objects.all()
-    profile = Profile.objects.all()
+# def post_comment_create_and_list_view(request):
+#     all_posts = Post.objects.all()
+#     profile = Profile.objects.all()
 
-    post_form = PostModelForm()
-    comment_form = CommentModelForm()
-    post_added = False
-    print("request.POST: ", request.POST)
+#     post_form = PostModelForm()
+#     comment_form = CommentModelForm()
+#     post_added = False
+#     print("request.POST: ", request.POST)
 
-    if "submmit_post" in request.POST:
-        profile = Profile.objects.get(user=request.user)
-        post_form = PostModelForm(request.POST, request.FILES)
+#     if "submmit_post" in request.POST:
+#         profile = Profile.objects.get(user=request.user)
+#         post_form = PostModelForm(request.POST, request.FILES)
 
-        if post_form.is_valid():
-            instance = post_form.save(commit=False)
-            instance.author = profile
-            instance.save()
-            post_form = PostModelForm()
-            post_added = True
+#         if post_form.is_valid():
+#             instance = post_form.save(commit=False)
+#             instance.author = profile
+#             instance.save()
+#             post_form = PostModelForm()
+#             post_added = True
 
-    if "submmit_comment" in request.POST:
-        print("submmit")
-        profile = Profile.objects.get(user=request.user)
-        comment_form = CommentModelForm(request.POST)
+#     if "submmit_comment" in request.POST:
+#         print("submmit")
+#         profile = Profile.objects.get(user=request.user)
+#         comment_form = CommentModelForm(request.POST)
 
-        post_ids = request.POST.getlist("post_id")
-        second_post_id = post_ids[1]
+#         post_ids = request.POST.getlist("post_id")
+#         second_post_id = post_ids[1]
 
-        if comment_form.is_valid():
-            instance = comment_form.save(commit=False)
-            instance.user = profile
-            instance.post = Post.objects.get(id=second_post_id)
-            instance.save()
-            comment_form = CommentModelForm()
+#         if comment_form.is_valid():
+#             instance = comment_form.save(commit=False)
+#             instance.user = profile
+#             instance.post = Post.objects.get(id=second_post_id)
+#             instance.save()
+#             comment_form = CommentModelForm()
 
-    context = {
-        "all_posts": all_posts,
-        "profile": profile,
-        "post_form": post_form,
-        "comment_form": comment_form,
-        "post_added": post_added,
-    }
+#     context = {
+#         "all_posts": all_posts,
+#         "profile": profile,
+#         "post_form": post_form,
+#         "comment_form": comment_form,
+#         "post_added": post_added,
+#     }
 
-    return render(request, "posts/main.html", context)
+#     return render(request, "posts/main.html", context)
 
 
 def get_post(request):
@@ -105,6 +113,73 @@ def get_post(request):
         response_data = {"status": "error", "message": "Post ID not provided"}
 
     return JsonResponse(response_data)
+
+
+class PostsListView(ListAPIView):
+    serializer_class = PostProfileSerializer
+    renderer_classes = [JSONOpenAPIRenderer]
+
+    def get_queryset(self):
+        return Post.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+
+        return Response(serializer.data)
+
+
+class PostView(ListAPIView):
+    serializer_class = PostProfileSerializer
+    renderer_classes = [JSONOpenAPIRenderer]
+
+    def get_queryset(self):
+        post_id = self.request.query_params.get("post_id")
+
+        return Post.objects.filter(id=post_id)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+
+        return Response(serializer.data)
+
+
+class CreatePostView(CreateAPIView):
+    serializer_class = PostSerializer
+    enderer_classes = [JSONOpenAPIRenderer]
+
+    def perform_create(self, serializer):
+        # 查看接收到的資料
+        received_data = self.request.data
+        print("Received data:", received_data)
+
+        # 如果您需要在創建 Comment 之前執行其他邏輯，可以在這裡實現
+        print("Performing additional logic before creating Comment...")
+
+        # 繼續執行原始的 perform_create
+        super().perform_create(serializer)
+
+
+class CommentView(ListAPIView):
+    serializer_class = CommentSerializer
+    renderer_classes = [JSONOpenAPIRenderer]
+
+    def get_queryset(self):
+        post_id = self.request.query_params.get("post_id")
+
+        return Comment.objects.filter(post__id=post_id)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+
+        return Response(serializer.data)
+
+
+class CreateCommentView(CreateAPIView):
+    serializer_class = CommentSerializer
+    renderer_classes = [JSONOpenAPIRenderer]
 
 
 @login_required

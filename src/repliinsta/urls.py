@@ -18,9 +18,10 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from .views import index
+from .views import index, check_login_status
 
 urlpatterns = [
+    path("check-login/", check_login_status, name="check-login"),
     path("admin/", admin.site.urls),
     path("", index, name="index"),
     path("profiles/", include("profiles.urls", namespace="profiles")),

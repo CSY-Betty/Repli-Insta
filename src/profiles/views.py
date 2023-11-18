@@ -11,10 +11,14 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 from django.core import serializers
-from .serializers import ProfileSerializer, ProfilePostSerializer
+from .serializers import (
+    ProfileSerializer,
+    ProfilePostSerializer,
+    RelationshipSerializer,
+)
 from rest_framework.response import Response
-from rest_framework.renderers import JSONOpenAPIRenderer, JSONRenderer
-from rest_framework.generics import ListAPIView
+from rest_framework.renderers import JSONOpenAPIRenderer
+from rest_framework.generics import ListAPIView, UpdateAPIView
 
 # Create your views here.
 
@@ -25,6 +29,19 @@ def profiles(request):
 
 def profile(request, slug):
     return render(request, "profiles/profile.html", {"slug": slug})
+
+
+def profileSet(request):
+    user = request.user
+    profile = Profile.objects.get(user=user)
+    context = {
+        "profile": profile,
+    }
+    return render(request, "profiles/profile-set.html", context)
+
+
+def friend_list(request):
+    return render(request, "profiles/friends.html")
 
 
 @login_required
@@ -198,6 +215,16 @@ class ProfileDetailView(DetailView):
 #         return context
 
 
+class ProfileUpdateView(UpdateAPIView):
+    serializer_class = ProfileSerializer
+    renderer_classes = [JSONOpenAPIRenderer]
+    queryset = Profile.objects.all()
+    allowed_methods = ["PUT", "PATCH"]
+
+    def get_object(self):
+        return self.queryset.get(user=self.request.user)
+
+
 class ProfileListView(ListAPIView):
     serializer_class = ProfileSerializer
     renderer_classes = [JSONOpenAPIRenderer]
@@ -225,6 +252,19 @@ class ProfilePostView(ListAPIView):
         serializer = ProfilePostSerializer(profile)
 
         return Response(serializer.data)
+
+
+class RelationshipListView(ListAPIView):
+    serializer_class = RelationshipSerializer
+    renderer_classes = [JSONOpenAPIRenderer]
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = Relationship.objects.filter(
+            Q(sender=user.profile) | Q(receiver=user.profile)
+        )
+
+        return queryset
 
 
 @login_required

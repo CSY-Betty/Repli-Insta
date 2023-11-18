@@ -1,13 +1,12 @@
 from rest_framework import serializers
-from .models import Profile
-from posts.models import Post
+from .models import Profile, Relationship
 from posts.serializers import PostSerializer
 
 
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
-        fields = ["user", "first_name", "last_name", "bio", "avatar", "friends"]
+        fields = ["user", "first_name", "last_name", "bio", "avatar", "friends", "slug"]
 
 
 class ProfilePostSerializer(serializers.ModelSerializer):
@@ -25,3 +24,20 @@ class ProfilePostSerializer(serializers.ModelSerializer):
             "posts",
             "slug",
         ]
+
+
+class RelationshipSerializer(serializers.ModelSerializer):
+    counterpart_profile = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Relationship
+        fields = ["sender", "receiver", "status", "counterpart_profile"]
+
+    def get_counterpart_profile(self, obj):
+        # 判斷當前使用者是 sender 還是 receiver
+        user = self.context["request"].user.profile
+        counterpart = obj.receiver if obj.sender == user else obj.sender
+
+        # 在這裡你可以使用 ProfileSerializer 將對方的 profile 序列化。
+        serialized_profile = ProfileSerializer(counterpart).data
+        return serialized_profile

@@ -1,3 +1,6 @@
+import { checkLogin } from '../auth/logStatus.js';
+import { getRelationData } from './datafetch.js';
+
 function getProfile() {
 	const currentUrl = window.location.href;
 	const urlParts = currentUrl.split('/');
@@ -18,6 +21,8 @@ function getProfile() {
 async function renderProfileInfo() {
 	const profileData = await getProfile();
 	const profileInfo = document.getElementById('profileInfo');
+	profileInfo.classList.add('flex', 'flex-col', 'items-center');
+
 	const profileInfoContainer = document.createElement('div');
 	profileInfoContainer.classList.add(
 		'py-4',
@@ -88,7 +93,92 @@ async function renderProfilePost() {
 	});
 }
 
+async function renderFriendButton() {
+	const profileInfo = document.getElementById('profileInfo');
+	const friendButton = document.createElement('button');
+	friendButton.id = 'friendButton';
+
+	const loginStatus = await checkLogin();
+	console.log(loginStatus.user_id);
+	const profileData = await getProfile();
+	console.log(profileData);
+	if (loginStatus.user_id === profileData.user) {
+		friendButton.classList.add(
+			'bg-white',
+			'hover:bg-gray-100',
+			'text-gray-800',
+			'font-semibold',
+			'py-2',
+			'px-4',
+			'border-b',
+			'border-gray-400',
+			'rounded',
+			'shadow'
+		);
+		friendButton.textContent = 'Friends';
+
+		profileInfo.appendChild(friendButton);
+	} else {
+		const relationData = await getRelationData();
+		const relation = await getFriendshipStatus(
+			relationData,
+			profileData.user
+		);
+
+		friendButton.classList.add(
+			'bg-white',
+			'hover:bg-gray-100',
+			'text-gray-800',
+			'font-semibold',
+			'py-2',
+			'px-4',
+			'border-b',
+			'border-gray-400',
+			'rounded',
+			'shadow'
+		);
+		friendButton.textContent = relation;
+
+		profileInfo.appendChild(friendButton);
+	}
+}
+
+function friendButtonClick() {
+	const friendButton = document.getElementById('friendButton');
+	friendButton.addEventListener('click', function () {
+		const buttonValue = friendButton.textContent;
+
+		if (buttonValue === 'Friends') {
+			const originUrl = window.location.origin;
+			const url = 'profile/friends/';
+			const absoluteUrl = `${originUrl}/profiles/${url}`;
+
+			window.location.href = absoluteUrl;
+		}
+	});
+}
+
 document.addEventListener('DOMContentLoaded', function () {
-	renderProfileInfo();
+	renderProfileInfo().then(renderFriendButton).then(friendButtonClick);
 	renderProfilePost();
 });
+
+function getFriendshipStatus(relationData, someone_id) {
+	const relation = relationData.find(
+		(rel) => rel.sender === someone_id || rel.receiver === someone_id
+	);
+
+	if (!relation) {
+		return 'Add friend';
+	}
+
+	if (relation.status === 'accepted') {
+		return 'Hi! Friend';
+	} else if (relation.status === 'send' && relation.receiver === someone_id) {
+		return 'Accept';
+	} else if (relation.status === 'send' && relation.sender === someone_id) {
+		return 'Wait';
+	}
+
+	return 'Add Friend';
+}

@@ -17,7 +17,6 @@ class ProfileManager(models.Manager):
         related_relationships = Relationship.objects.filter(
             Q(sender=profile) | Q(receiver=profile)
         )
-        print("related_relationships: ", related_relationships)
 
         accepted = set([])
         for related in related_relationships:

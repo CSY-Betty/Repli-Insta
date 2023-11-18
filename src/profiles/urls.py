@@ -13,6 +13,10 @@ from .views import (
     profiles,
     ProfilePostView,
     profile,
+    profileSet,
+    ProfileUpdateView,
+    RelationshipListView,
+    friend_list,
 )
 
 app_name = "profiles"
@@ -21,8 +25,13 @@ urlpatterns = [
     path("", profiles, name="profiles"),
     path("all-profiles/", ProfileListView.as_view(), name="all-profiles-view"),
     path("profile/", ProfilePostView.as_view(), name="profile"),
-    path("<slug>/", profile, name="profile"),
-    path("profileupdate/", profile_update, name="profile-update"),
+    path("profile/set/", profileSet, name="profile-set"),
+    path("profile/set/update/", ProfileUpdateView.as_view(), name="profile-update"),
+    path("<slug>/", profile, name="profile-view"),
+    path("profile/friends/", friend_list, name="friends"),
+    path("profile/friends/list", RelationshipListView.as_view(), name="friends-list"),
+    # old
+    path("profileupdate/", profile_update, name="profileupdate"),
     path("my-invites/", invites_received_view, name="my-invites-view"),
     path("to-invite/", invite_profile_list_view, name="invite-profiles-view"),
     path("send-invite/", send_invations, name="send-invite"),

@@ -6,5 +6,6 @@ def profile_pic(request):
         profile_obj = Profile.objects.get(user=request.user)
         user_avatar = profile_obj.avatar
         user_slug = profile_obj.slug
-        return {"user_avatar": user_avatar, "user_slug": user_slug}
+        user_id = request.user.id
+        return {"user_avatar": user_avatar, "user_slug": user_slug, "user_id": user_id}
     return {}
