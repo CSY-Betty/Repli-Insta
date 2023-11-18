@@ -16,6 +16,8 @@ from .views import (
     RelationshipListView,
     friend_list,
     CreateRelationView,
+    AcceptRelationView,
+    RejectRelationshipView,
 )
 
 app_name = "profiles"
@@ -30,6 +32,12 @@ urlpatterns = [
     path("profile/friends/", friend_list, name="friends"),
     path("profile/friends/list", RelationshipListView.as_view(), name="friends-list"),
     path("profile/friends/add/", CreateRelationView.as_view(), name="add-friend"),
+    path("profile/friends/accept/", AcceptRelationView.as_view(), name="accept-friend"),
+    path(
+        "profile/friends/reject/<int:sender__id>",
+        RejectRelationshipView.as_view(),
+        name="reject-friend",
+    ),
     # old
     path("profileupdate/", profile_update, name="profileupdate"),
     path("my-invites/", invites_received_view, name="my-invites-view"),

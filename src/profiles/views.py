@@ -18,7 +18,12 @@ from .serializers import (
 )
 from rest_framework.response import Response
 from rest_framework.renderers import JSONOpenAPIRenderer
-from rest_framework.generics import ListAPIView, UpdateAPIView, CreateAPIView
+from rest_framework.generics import (
+    ListAPIView,
+    UpdateAPIView,
+    CreateAPIView,
+    DestroyAPIView,
+)
 
 from rest_framework import status
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -211,6 +216,51 @@ class CreateRelationView(CreateAPIView, LoginRequiredMixin):
             {"message": "Relationship created successfully."},
             status=status.HTTP_201_CREATED,
         )
+
+
+class AcceptRelationView(UpdateAPIView, LoginRequiredMixin):
+    serializer_class = RelationshipSerializer
+    renderer_classes = [JSONOpenAPIRenderer]
+
+    def get_queryset(self):
+        user = self.request.user.profile
+        sender_id = self.request.data.get("sender")
+
+        return Relationship.objects.filter(
+            receiver=user, sender__id=sender_id, status="send"
+        )
+
+    def perform_update(self, serializer):
+        serializer.save(status="accepted")
+
+    def get_object(self):
+        sender_id = self.request.data.get("sender")
+        queryset = self.get_queryset()
+
+        return get_object_or_404(queryset, sender__id=sender_id)
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+
+class RejectRelationshipView(DestroyAPIView, LoginRequiredMixin):
+    serializer_class = RelationshipSerializer
+    renderer_classes = [JSONOpenAPIRenderer]
+    lookup_field = "sender__id"
+
+    def get_queryset(self):
+        user = self.request.user.profile
+        sender_id = self.request.data.get("sender")
+
+        return Relationship.objects.filter(
+            receiver=user, sender__id=sender_id, status="send"
+        )
+
+    def perform_destroy(self, instance):
+        instance.delete()
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
 
 
 @login_required

@@ -3,8 +3,6 @@ import { getRelationData } from './datafetch.js';
 
 async function renderFriendRelate(relation) {
 	const userId = await checkLogin();
-	console.log(relation);
-	console.log(userId);
 
 	if ((userId.user_id === relation.sender) & (relation.status === 'send')) {
 		return 'Waiting Approved';
@@ -106,6 +104,8 @@ async function renderFriendList() {
 					'px-4',
 					'rounded'
 				);
+				acceptButton.dataset.profile =
+					relation.counterpart_profile.user;
 
 				const rejectButton = document.createElement('button');
 				rejectButton.innerText = 'Reject';
@@ -119,6 +119,9 @@ async function renderFriendList() {
 					'px-4',
 					'rounded'
 				);
+				rejectButton.dataset.profile =
+					relation.counterpart_profile.user;
+
 				friendStatus.appendChild(acceptButton);
 				friendStatus.appendChild(rejectButton);
 			}
@@ -139,4 +142,88 @@ async function renderFriendList() {
 
 document.addEventListener('DOMContentLoaded', function () {
 	renderFriendList();
+	updateFriend();
 });
+
+function updateFriend() {
+	const friendRelate = document.getElementById('friendRelate');
+
+	friendRelate.addEventListener('click', function (event) {
+		if (
+			event.target.matches('.AcceptButton') ||
+			event.target.matches('.RejectButton')
+		) {
+			const profileId = event.target.getAttribute('data-profile');
+
+			if (event.target.classList.contains('AcceptButton')) {
+				accept(profileId);
+			} else if (event.target.classList.contains('RejectButton')) {
+				reject(profileId);
+			}
+		}
+	});
+}
+
+async function accept(profileId) {
+	const userId = await checkLogin();
+	// 執行接受操作，使用 profileId
+	console.log('Accept profile with ID:', profileId);
+
+	const originUrl = window.location.origin;
+	const url = '/profiles/profile/friends/accept/';
+
+	const acceptFriendUrl = `${originUrl}${url}`;
+
+	const csrfToken = document.getElementsByName('csrfmiddlewaretoken')[0]
+		.value;
+
+	const data = {
+		sender: profileId,
+		receiver: userId.user_id,
+		status: 'send',
+	};
+
+	fetch(acceptFriendUrl, {
+		method: 'PUT',
+		headers: {
+			'Content-Type': 'application/json',
+			'X-CSRFToken': csrfToken,
+		},
+		body: JSON.stringify(data),
+	})
+		.then((response) => response.json())
+		.then((data) => console.log('sucess: ', data))
+		.catch(console.error());
+}
+
+async function reject(profileId) {
+	// 執行拒絕操作，使用 profileId
+	console.log('Reject profile with ID:', profileId);
+	const userId = await checkLogin();
+
+	const originUrl = window.location.origin;
+	const url = `/profiles/profile/friends/reject/${profileId}`;
+
+	const rejectFriendUrl = `${originUrl}${url}`;
+
+	const csrfToken = document.getElementsByName('csrfmiddlewaretoken')[0]
+		.value;
+
+	const data = {
+		sender: profileId,
+		receiver: userId.user_id,
+		status: 'send',
+	};
+
+	fetch(rejectFriendUrl, {
+		method: 'DELETE',
+		headers: {
+			'Content-Type': 'application/json',
+			'X-CSRFToken': csrfToken,
+		},
+		body: JSON.stringify(data),
+	})
+		.then((response) => response.json())
+		.then((data) => console.log('sucess: ', data))
+		.catch(console.error());
+}
