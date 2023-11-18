@@ -4,6 +4,9 @@ WORKDIR /Repli-Insta
 COPY package*.json /Repli-Insta/
 RUN npm install
 
+# 在 Node.js 安裝相依套件的步驟後，添加 npm 命令的目錄到 PATH
+ENV PATH=/Repli-Insta/node_modules/.bin:$PATH
+
 # 第二階段：使用 Python 的基礎映像安裝 Python 相依套件
 FROM --platform=linux/amd64 python:3.9-slim AS python_build
 WORKDIR /Repli-Insta
