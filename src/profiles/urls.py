@@ -1,7 +1,6 @@
 from django.urls import path
 from .views import (
     profile_update,
-    my_profile,
     invites_received_view,
     invite_profile_list_view,
     ProfileListView,
@@ -9,7 +8,6 @@ from .views import (
     remove_from_friends,
     accept_invitation,
     reject_invitation,
-    ProfileDetailView,
     profiles,
     ProfilePostView,
     profile,
@@ -40,6 +38,4 @@ urlpatterns = [
     path("remove-friend/", remove_from_friends, name="remove-friend"),
     path("my-invites/accept/", accept_invitation, name="accept-invite"),
     path("my-invites/reject/", reject_invitation, name="reject-invite"),
-    # path("myprofile/", my_profile, name="my-profile"),
-    # path("<slug>/", ProfileDetailView.as_view(), name="profile-detail-view"),
 ]
