@@ -1,5 +1,6 @@
 import { checkLogin } from '../auth/logStatus.js';
 import { getRelationData } from './datafetch.js';
+import { addFriend } from './addFriend.js';
 
 function getProfile() {
 	const currentUrl = window.location.href;
@@ -126,6 +127,7 @@ async function renderFriendButton() {
 		);
 
 		friendButton.classList.add(
+			'friendStatus',
 			'bg-white',
 			'hover:bg-gray-100',
 			'text-gray-800',
@@ -138,6 +140,7 @@ async function renderFriendButton() {
 			'shadow'
 		);
 		friendButton.textContent = relation;
+		friendButton.dataset.profileAuthor = profileData.user;
 
 		profileInfo.appendChild(friendButton);
 	}
@@ -159,7 +162,10 @@ function friendButtonClick() {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-	renderProfileInfo().then(renderFriendButton).then(friendButtonClick);
+	renderProfileInfo()
+		.then(renderFriendButton)
+		.then(friendButtonClick)
+		.then(addFriend);
 	renderProfilePost();
 });
 
@@ -175,9 +181,9 @@ function getFriendshipStatus(relationData, someone_id) {
 	if (relation.status === 'accepted') {
 		return 'Hi! Friend';
 	} else if (relation.status === 'send' && relation.receiver === someone_id) {
-		return 'Accept';
+		return 'Waiting Approved';
 	} else if (relation.status === 'send' && relation.sender === someone_id) {
-		return 'Wait';
+		return 'Accept';
 	}
 
 	return 'Add Friend';

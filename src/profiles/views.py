@@ -18,7 +18,10 @@ from .serializers import (
 )
 from rest_framework.response import Response
 from rest_framework.renderers import JSONOpenAPIRenderer
-from rest_framework.generics import ListAPIView, UpdateAPIView
+from rest_framework.generics import ListAPIView, UpdateAPIView, CreateAPIView
+
+from rest_framework import status
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 # Create your views here.
 
@@ -265,6 +268,27 @@ class RelationshipListView(ListAPIView):
         )
 
         return queryset
+
+
+class CreateRelationView(CreateAPIView, LoginRequiredMixin):
+    serializer_class = RelationshipSerializer
+    renderer_classes = [JSONOpenAPIRenderer]
+
+    def perform_create(self, serializer):
+        sender_profile = self.request.user.profile
+        receiver_id = self.request.data.get("receiver", None)
+
+        try:
+            receiver_profile = Profile.objects.get(user__id=receiver_id)
+        except Profile.DoesNotExist:
+            return JsonResponse({"error": "Receiver profile not found."}, status=404)
+
+        serializer.save(sender=sender_profile, receiver=receiver_profile)
+
+        return Response(
+            {"message": "Relationship created successfully."},
+            status=status.HTTP_201_CREATED,
+        )
 
 
 @login_required

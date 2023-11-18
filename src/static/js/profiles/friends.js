@@ -7,7 +7,7 @@ async function renderFriendRelate(relation) {
 	console.log(userId);
 
 	if ((userId.user_id === relation.sender) & (relation.status === 'send')) {
-		return 'waiting approved';
+		return 'Waiting Approved';
 	} else if (
 		(userId.user_id === relation.receiver) &
 		(relation.status === 'send')
