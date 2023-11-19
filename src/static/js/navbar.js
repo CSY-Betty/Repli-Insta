@@ -1,3 +1,5 @@
+import { checkLogin } from './auth/logStatus.js';
+
 function dropdownMenu() {
 	const button = document.getElementById('dropdownHoverButton');
 	const dropdown = document.getElementById('dropdownHover');
@@ -70,7 +72,14 @@ function createPost() {
 	});
 }
 
+async function checkLoginStatus() {
+	const user = await checkLogin();
+	if (user.user_id != 999) {
+		dropdownMenu();
+		showPost();
+	}
+}
+
 document.addEventListener('DOMContentLoaded', function () {
-	dropdownMenu();
-	showPost();
+	checkLoginStatus();
 });
