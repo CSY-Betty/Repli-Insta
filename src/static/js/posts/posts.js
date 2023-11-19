@@ -26,7 +26,12 @@ async function renderCenterPosts() {
 
 		const postImage = document.createElement('img');
 		postImage.classList.add('post_image', 'w-full', 'h-64');
-		postImage.src = post.image;
+		if (post.image) {
+			postImage.src = post.image;
+		} else {
+			postImage.src = '/static/img/no-photo.png';
+		}
+
 		postImage.alt = 'No Image';
 		postImage.dataset.postId = post.post_id;
 		const authorInfo = document.createElement('div');

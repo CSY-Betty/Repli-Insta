@@ -173,7 +173,11 @@ async function renderProfilePost() {
 
 		const postImage = document.createElement('img');
 		postImage.classList.add('w-full', 'h-64');
-		postImage.src = post.image;
+		if (post.image) {
+			postImage.src = post.image;
+		} else {
+			postImage.src = '/static/img/no-photo.png';
+		}
 		postImage.alt = 'No Image';
 
 		const postContent = document.createElement('div');
