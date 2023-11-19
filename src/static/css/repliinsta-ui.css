@@ -1001,6 +1001,11 @@ video {
   background-color: rgb(251 113 133 / var(--tw-bg-opacity));
 }
 
+.bg-rose-600 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(225 29 72 / var(--tw-bg-opacity));
+}
+
 .stroke-rose-800 {
   stroke: #9f1239;
 }
