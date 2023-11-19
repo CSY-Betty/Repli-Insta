@@ -13,6 +13,7 @@ from .views import (
     CreateCommentView,
     CreatePostView,
     LikePostView,
+    UserLikedPostsView,
 )
 
 app_name = "posts"
@@ -26,6 +27,7 @@ urlpatterns = [
     path("comments/", CommentView.as_view(), name="comments"),
     path("comment/create/", CreateCommentView.as_view(), name="create-comment"),
     path("post/like/<int:post_id>/", LikePostView.as_view(), name="like-post"),
+    path("post/userliked/", UserLikedPostsView.as_view(), name="user-liked-posts"),
     # old
     path("liked/", like_unlike_post, name="like-post-view"),
     path("get-post", get_post, name="get-post"),

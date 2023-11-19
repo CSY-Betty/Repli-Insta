@@ -25,6 +25,7 @@ from rest_framework.generics import (
 from rest_framework.response import Response
 from rest_framework.renderers import JSONOpenAPIRenderer
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 
 
 # Create your views here.
@@ -230,6 +231,22 @@ class LikePostView(ListCreateAPIView):
             return Response(
                 serializer.data, status=status.HTTP_201_CREATED, headers=headers
             )
+
+
+class UserLikedPostsView(ListAPIView):
+    serializer_class = PostProfileSerializer
+    renderer_classes = [JSONOpenAPIRenderer]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user_profile = self.request.user.profile
+        liked_posts = Post.objects.filter(liked=user_profile)
+        return liked_posts
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 @login_required

@@ -2,12 +2,13 @@
 {% load static %}
 
 {% block center %}
-<article id="friendRelate" class="flex flex-col"></article>
+<div id="postsContainer"></div>
+
     
 {% endblock center %}
 
 
 
 {% block scripts %}
-<script type="module" src="{% static 'js/profiles/friends.js' %}"></script>
+<script type="module" src="{% static 'js/profiles/likedPosts.js' %}"></script>
 {% endblock %}

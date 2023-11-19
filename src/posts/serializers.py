@@ -25,6 +25,7 @@ class CommentSerializer(serializers.ModelSerializer):
 class PostProfileSerializer(serializers.ModelSerializer):
     post_id = serializers.ReadOnlyField(source="id")
     author_profile = serializers.SerializerMethodField()
+    liked = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
@@ -44,6 +45,13 @@ class PostProfileSerializer(serializers.ModelSerializer):
 
         profile_serializer = ProfileSerializer(post.author)
         return profile_serializer.data
+
+    def get_liked(self, post):
+        from profiles.serializers import ProfileSerializer
+
+        liked_profiles = post.liked.all()
+        liked_serializer = ProfileSerializer(liked_profiles, many=True)
+        return liked_serializer.data
 
 
 class LikePostSerializer(serializers.ModelSerializer):
