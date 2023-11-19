@@ -45,6 +45,10 @@ def friend_list(request):
     return render(request, "profiles/friends.html")
 
 
+def likedposts_list(request):
+    return render(request, "profiles/likedposts.html")
+
+
 class ProfileUpdateView(UpdateAPIView):
     serializer_class = ProfileSerializer
     renderer_classes = [JSONOpenAPIRenderer]

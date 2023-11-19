@@ -4,6 +4,7 @@ from .views import (
     profile,
     profileSet,
     friend_list,
+    likedposts_list,
     ProfileListView,
     ProfilePostView,
     ProfileUpdateView,
@@ -30,5 +31,10 @@ urlpatterns = [
         "profile/friends/reject/<int:sender__id>",
         RejectRelationshipView.as_view(),
         name="reject-friend",
+    ),
+    path(
+        "profile/likedposts/",
+        likedposts_list,
+        name="liked-posts",
     ),
 ]

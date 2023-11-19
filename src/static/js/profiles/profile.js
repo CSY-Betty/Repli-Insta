@@ -72,6 +72,11 @@ async function renderProfileInfo() {
 			'cursor-pointer'
 		);
 		likedPosts.textContent = 'Likes';
+
+		const url = '/profiles/profile/likedposts/';
+		const originUrl = window.location.origin;
+		const likedPostsUrl = `${originUrl}${url}`;
+		likedPosts.href = likedPostsUrl;
 	}
 
 	profileDetail.appendChild(profileName);
