@@ -21,6 +21,9 @@ function getProfile() {
 
 async function renderProfileInfo() {
 	const profileData = await getProfile();
+	console.log(profileData);
+	const user = await checkLogin();
+	console.log(user);
 	const profileInfo = document.getElementById('profileInfo');
 	profileInfo.classList.add('flex', 'flex-col', 'items-center');
 
@@ -52,11 +55,34 @@ async function renderProfileInfo() {
 	const profileBio = document.createElement('div');
 	profileBio.innerText = profileData.bio;
 
+	let likedPosts;
+	if (user.user_id === profileData.user) {
+		likedPosts = document.createElement('a');
+		likedPosts.classList.add(
+			'bg-white',
+			'hover:bg-gray-100',
+			'text-gray-800',
+			'font-semibold',
+			'py-2',
+			'px-4',
+			'border-b',
+			'border-gray-400',
+			'rounded',
+			'shadow',
+			'cursor-pointer'
+		);
+		likedPosts.textContent = 'Likes';
+	}
+
 	profileDetail.appendChild(profileName);
 	profileDetail.appendChild(profileBio);
 
 	profileInfoContainer.appendChild(profileAvatar);
 	profileInfoContainer.appendChild(profileDetail);
+
+	if (likedPosts) {
+		profileInfoContainer.appendChild(likedPosts);
+	}
 
 	profileInfo.appendChild(profileInfoContainer);
 }
@@ -100,9 +126,7 @@ async function renderFriendButton() {
 	friendButton.id = 'friendButton';
 
 	const loginStatus = await checkLogin();
-	console.log(loginStatus.user_id);
 	const profileData = await getProfile();
-	console.log(profileData);
 	if (loginStatus.user_id === profileData.user) {
 		friendButton.classList.add(
 			'bg-white',
