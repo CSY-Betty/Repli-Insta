@@ -17,7 +17,6 @@ async function renderFriendRelate(relation) {
 
 async function renderFriendList() {
 	const relationData = await getRelationData();
-	console.log(relationData);
 	const friendRelate = document.getElementById('friendRelate');
 
 	for (const relation of relationData) {
