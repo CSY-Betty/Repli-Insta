@@ -1,5 +1,6 @@
 import { postComment } from './comment.js';
 import { getPosts, getPostData, getCommentsData } from './datafetch.js';
+import { checkLogin } from '../auth/logStatus.js';
 
 async function renderCenterPosts() {
 	const postsData = await getPosts();
@@ -76,24 +77,31 @@ async function renderCenterPosts() {
 		postLikeNumber.classList.add('postLikeNumber');
 		postLikeNumber.innerText = '1234';
 
-		const postLikeStatus = await checkPostLikeStatus(post.post_id);
+		const user = await checkLogin();
+		let postLikeButton;
+		if (user.user_id != 999) {
+			const postLikeStatus = await checkPostLikeStatus(post.post_id);
 
-		const postLikeButton = document.createElement('img');
-		postLikeButton.classList.add('postLikeButton', 'w-6', 'h-6');
-		if (postLikeStatus.length != 0) {
-			postLikeButton.src = '/static/img/like.png';
-		} else {
-			postLikeButton.src = '/static/img/unlike.png';
+			postLikeButton = document.createElement('img');
+
+			postLikeButton.classList.add('postLikeButton', 'w-6', 'h-6');
+			if (postLikeStatus.length != 0) {
+				postLikeButton.src = '/static/img/like.png';
+			} else {
+				postLikeButton.src = '/static/img/unlike.png';
+			}
+
+			postLikeButton.dataset.postId = post.post_id;
 		}
-
-		postLikeButton.dataset.postId = post.post_id;
 
 		const postContent = document.createElement('div');
 		postContent.classList.add('px-6', 'py-4', 'text-gray-700', 'text-base');
 		postContent.innerText = post.content;
 
 		postLike.appendChild(postLikeNumber);
-		postLike.appendChild(postLikeButton);
+		if (postLikeButton) {
+			postLike.appendChild(postLikeButton);
+		}
 
 		authorInfo.appendChild(authorAvatar);
 

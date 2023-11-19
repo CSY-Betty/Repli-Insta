@@ -198,6 +198,7 @@ class CreateCommentView(CreateAPIView):
 class LikePostView(ListCreateAPIView):
     serializer_class = LikePostSerializer
     renderer_classes = [JSONOpenAPIRenderer]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user_profile = self.request.user.profile
