@@ -75,7 +75,7 @@ async function renderCenterPosts() {
 
 		const postLikeNumber = document.createElement('div');
 		postLikeNumber.classList.add('postLikeNumber');
-		postLikeNumber.innerText = '1234';
+		postLikeNumber.innerText = post.liked.length;
 
 		const user = await checkLogin();
 		let postLikeButton;

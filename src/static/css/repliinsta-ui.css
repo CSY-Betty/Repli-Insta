@@ -775,22 +775,6 @@ video {
   max-width: 36rem;
 }
 
-.max-w-7xl {
-  max-width: 80rem;
-}
-
-.max-w-4xl {
-  max-width: 56rem;
-}
-
-.max-w-2xl {
-  max-width: 42rem;
-}
-
-.max-w-xs {
-  max-width: 20rem;
-}
-
 .basis-1\/5 {
   flex-basis: 20%;
 }

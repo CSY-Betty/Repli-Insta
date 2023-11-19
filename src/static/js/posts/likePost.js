@@ -6,7 +6,6 @@ async function likePost() {
 	postsContainer.addEventListener('click', async (event) => {
 		const postLikeButton = event.target.closest('.postLikeButton');
 		const post_id = postLikeButton?.getAttribute('data-post-id');
-		console.log(post_id);
 		if (post_id) {
 			// const user = await checkLogin();
 

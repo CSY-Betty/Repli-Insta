@@ -35,53 +35,6 @@ def posts(request):
     return render(request, "posts/posts.html")
 
 
-# @login_required
-# def post_comment_create_and_list_view(request):
-#     all_posts = Post.objects.all()
-#     profile = Profile.objects.all()
-
-#     post_form = PostModelForm()
-#     comment_form = CommentModelForm()
-#     post_added = False
-#     print("request.POST: ", request.POST)
-
-#     if "submmit_post" in request.POST:
-#         profile = Profile.objects.get(user=request.user)
-#         post_form = PostModelForm(request.POST, request.FILES)
-
-#         if post_form.is_valid():
-#             instance = post_form.save(commit=False)
-#             instance.author = profile
-#             instance.save()
-#             post_form = PostModelForm()
-#             post_added = True
-
-#     if "submmit_comment" in request.POST:
-#         print("submmit")
-#         profile = Profile.objects.get(user=request.user)
-#         comment_form = CommentModelForm(request.POST)
-
-#         post_ids = request.POST.getlist("post_id")
-#         second_post_id = post_ids[1]
-
-#         if comment_form.is_valid():
-#             instance = comment_form.save(commit=False)
-#             instance.user = profile
-#             instance.post = Post.objects.get(id=second_post_id)
-#             instance.save()
-#             comment_form = CommentModelForm()
-
-#     context = {
-#         "all_posts": all_posts,
-#         "profile": profile,
-#         "post_form": post_form,
-#         "comment_form": comment_form,
-#         "post_added": post_added,
-#     }
-
-#     return render(request, "posts/main.html", context)
-
-
 def get_post(request):
     post_id = request.GET.get("post_id")
     post = Post.objects.get(id=post_id)
@@ -228,6 +181,8 @@ class LikePostView(ListCreateAPIView):
             serializer = self.get_serializer(data=like_data)
             serializer.is_valid(raise_exception=True)
             self.perform_create(serializer)
+            post = Post.objects.get(id=post_id)
+            post.liked.add(user_profile)
             headers = self.get_success_headers(serializer.data)
             return Response(
                 serializer.data, status=status.HTTP_201_CREATED, headers=headers
