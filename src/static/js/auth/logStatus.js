@@ -1,6 +1,7 @@
 export function checkLogin() {
 	const url = '/check-login/';
-	const checkLoginUrl = `${window.location.origin}${url}`;
+	const originUrl = window.location.origin;
+	const checkLoginUrl = `${originUrl}${url}`;
 
 	const csrfToken = document.getElementsByName('csrfmiddlewaretoken')[0]
 		.value;

@@ -4,18 +4,24 @@ import { getPosts, getPostData, getCommentsData } from './datafetch.js';
 async function renderCenterPosts() {
 	const postsData = await getPosts();
 	const postsContainer = document.getElementById('postsContainer');
-	postsContainer.classList.add('pt-4', 'grid', 'grid-cols-3', 'gap-4');
+	postsContainer.classList.add(
+		'pt-4',
+		'flex',
+		'gap-4',
+		'w-full',
+		'flex-wrap'
+	);
 
-	postsData.forEach((post) => {
+	for (const post of postsData) {
 		const postContainer = document.createElement('div');
 		postContainer.classList.add(
-			'max-w-sm',
 			'rounded',
 			'overflow-hidden',
 			'shadow-lg',
 			'hover:scale-105',
 			'transition-transform',
-			'duration-300'
+			'duration-300',
+			'w-56'
 		);
 
 		const postImage = document.createElement('img');
@@ -29,7 +35,8 @@ async function renderCenterPosts() {
 			'flex-row',
 			'px-6',
 			'py-2',
-			'items-center'
+			'items-center',
+			'justify-between'
 		);
 
 		const authorAvatar = document.createElement('img');
@@ -46,9 +53,10 @@ async function renderCenterPosts() {
 		authorAvatar.dataset.authorSlug = post.author_profile.slug;
 
 		const authorData = document.createElement('div');
-		authorData.classList.add('px-2');
+		authorData.classList.add('px-2', 'overflow-hidden');
 
 		const authorName = document.createElement('div');
+		authorName.classList.add('overflow-ellipsis', 'no-wrap');
 		authorName.innerText = post.author_profile.first_name;
 
 		const postTime = document.createElement('div');
@@ -56,22 +64,46 @@ async function renderCenterPosts() {
 		let time = timeCalculate(post.created);
 		postTime.innerText = time;
 
+		const postLike = document.createElement('div');
+		postLike.classList.add('postLike', 'flex', 'flex-col', 'items-end');
+
+		const postLikeNumber = document.createElement('div');
+		postLikeNumber.classList.add('postLikeNumber');
+		postLikeNumber.innerText = '1234';
+
+		const postLikeStatus = await checkPostLikeStatus(post.post_id);
+
+		const postLikeButton = document.createElement('img');
+		postLikeButton.classList.add('postLikeButton', 'w-6', 'h-6');
+		if (postLikeStatus.length != 0) {
+			postLikeButton.src = '/static/img/like.png';
+		} else {
+			postLikeButton.src = '/static/img/unlike.png';
+		}
+
+		postLikeButton.dataset.postId = post.post_id;
+
 		const postContent = document.createElement('div');
 		postContent.classList.add('px-6', 'py-4', 'text-gray-700', 'text-base');
 		postContent.innerText = post.content;
 
+		postLike.appendChild(postLikeNumber);
+		postLike.appendChild(postLikeButton);
+
 		authorInfo.appendChild(authorAvatar);
+
 		authorData.appendChild(authorName);
 		authorData.appendChild(postTime);
-
 		authorInfo.appendChild(authorData);
+
+		authorInfo.appendChild(postLike);
 
 		postContainer.appendChild(postImage);
 		postContainer.appendChild(authorInfo);
 		postContainer.appendChild(postContent);
 
 		postsContainer.appendChild(postContainer);
-	});
+	}
 }
 
 function createRightPost(postData) {
@@ -247,6 +279,8 @@ async function renderRightPost() {
 document.addEventListener('DOMContentLoaded', function () {
 	renderCenterPosts();
 	renderRightPost();
+	const renderComplete = new Event('renderComplete');
+	document.dispatchEvent(renderComplete);
 });
 
 function timeCalculate(time) {
@@ -265,4 +299,22 @@ function timeCalculate(time) {
 	} else {
 		return `${hoursDiff} hours ago`;
 	}
+}
+
+function checkPostLikeStatus(post_id) {
+	const url = `/posts/post/like/${post_id}/`;
+	const originUrl = window.location.origin;
+	const checkUrl = `${originUrl}${url}`;
+
+	return fetch(checkUrl, {
+		method: 'GET',
+		headers: { 'Content-Type': 'application/json' },
+	})
+		.then((response) => response.json())
+		.then((data) => {
+			return data;
+		})
+		.catch((error) => {
+			console.error(error.message);
+		});
 }

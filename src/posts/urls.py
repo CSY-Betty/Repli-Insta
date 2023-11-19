@@ -12,20 +12,24 @@ from .views import (
     CommentView,
     CreateCommentView,
     CreatePostView,
+    LikePostView,
 )
 
 app_name = "posts"
 
 urlpatterns = [
     path("", posts, name="main-post-view"),
-    path("liked/", like_unlike_post, name="like-post-view"),
-    path("<pk>/delete/", PostDeleteView.as_view(), name="post-delete"),
-    path("<pk>/update/", PostUpdateView.as_view(), name="post-update"),
-    path("get-post", get_post, name="get-post"),
-    path("get-comment", get_comment, name="get-comment"),
+    # new
     path("posts-list/", PostsListView.as_view(), name="posts-list"),
     path("post/", PostView.as_view(), name="post"),
+    path("post/create/", CreatePostView.as_view(), name="create-post"),
     path("comments/", CommentView.as_view(), name="comments"),
     path("comment/create/", CreateCommentView.as_view(), name="create-comment"),
-    path("post/create/", CreatePostView.as_view(), name="create-post"),
+    path("post/like/<int:post_id>/", LikePostView.as_view(), name="like-post"),
+    # old
+    path("liked/", like_unlike_post, name="like-post-view"),
+    path("get-post", get_post, name="get-post"),
+    path("get-comment", get_comment, name="get-comment"),
+    path("<pk>/delete/", PostDeleteView.as_view(), name="post-delete"),
+    path("<pk>/update/", PostUpdateView.as_view(), name="post-update"),
 ]

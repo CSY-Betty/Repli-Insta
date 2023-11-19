@@ -42,16 +42,16 @@ class Comment(models.Model):
         return str(self.pk)
 
 
-LIKE_CHOICES = (
-    ("Like", "Like"),
-    ("Unlike", "Unlike"),
-)
+# LIKE_CHOICES = (
+#     ("Like", "Like"),
+#     ("Unlike", "Unlike"),
+# )
 
 
 class Like(models.Model):
     user = models.ForeignKey(Profile, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    value = models.CharField(choices=LIKE_CHOICES, max_length=8)
+    value = models.BooleanField(default=False)
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
 

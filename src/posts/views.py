@@ -10,10 +10,22 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.serializers import serialize
 import json
-from .serializers import PostProfileSerializer, PostSerializer, CommentSerializer
-from rest_framework.generics import ListAPIView, CreateAPIView
+from .serializers import (
+    PostProfileSerializer,
+    PostSerializer,
+    CommentSerializer,
+    LikePostSerializer,
+)
+from rest_framework.generics import (
+    ListAPIView,
+    CreateAPIView,
+    UpdateAPIView,
+    ListCreateAPIView,
+)
 from rest_framework.response import Response
 from rest_framework.renderers import JSONOpenAPIRenderer
+from rest_framework import status
+
 
 # Create your views here.
 
@@ -180,6 +192,44 @@ class CommentView(ListAPIView):
 class CreateCommentView(CreateAPIView):
     serializer_class = CommentSerializer
     renderer_classes = [JSONOpenAPIRenderer]
+
+
+class LikePostView(ListCreateAPIView):
+    serializer_class = LikePostSerializer
+    renderer_classes = [JSONOpenAPIRenderer]
+
+    def get_queryset(self):
+        user_profile = self.request.user.profile
+        post_id = self.kwargs.get("post_id")
+
+        return Like.objects.filter(user=user_profile, post_id=post_id)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+
+        return Response(serializer.data)
+
+    def create(self, request, *args, **kwargs):
+        post_id = self.kwargs.get("post_id")
+        user_profile = request.user.profile
+        like_data = {"user": user_profile.id, "post": post_id, "value": True}
+
+        existing_like = Like.objects.filter(**like_data).first()
+
+        if existing_like:
+            existing_like.delete()
+            return Response(
+                {"message": "Like removed successfully."}, status=status.HTTP_200_OK
+            )
+        else:
+            serializer = self.get_serializer(data=like_data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+            return Response(
+                serializer.data, status=status.HTTP_201_CREATED, headers=headers
+            )
 
 
 @login_required
