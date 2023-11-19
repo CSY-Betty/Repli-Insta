@@ -1,6 +1,6 @@
 import { checkLogin } from '../auth/logStatus.js';
 import { getRelationData } from './datafetch.js';
-import { addFriend } from './addFriend.js';
+import { addFriend, accept, reject } from './addFriend.js';
 
 function getProfile() {
 	const currentUrl = window.location.href;
@@ -21,9 +21,7 @@ function getProfile() {
 
 async function renderProfileInfo() {
 	const profileData = await getProfile();
-	console.log(profileData);
 	const user = await checkLogin();
-	console.log(user);
 	const profileInfo = document.getElementById('profileInfo');
 	profileInfo.classList.add('flex', 'flex-col', 'items-center');
 
@@ -55,6 +53,66 @@ async function renderProfileInfo() {
 	const profileBio = document.createElement('div');
 	profileBio.innerText = profileData.bio;
 
+	const friendButton = document.createElement('div');
+	friendButton.id = 'friendButton';
+	friendButton.classList.add(
+		'bg-white',
+		'hover:bg-gray-100',
+		'text-gray-800',
+		'font-semibold',
+		'py-2',
+		'px-4',
+		'border-b',
+		'border-gray-400',
+		'rounded',
+		'shadow',
+		'cursor-pointer',
+		'my-4'
+	);
+	if (user.user_id === profileData.user) {
+		friendButton.textContent = 'Friends';
+	} else {
+		const relationData = await getRelationData();
+		const relation = await getFriendshipStatus(
+			relationData,
+			profileData.user
+		);
+		if (relation != 'check') {
+			friendButton.textContent = relation;
+		} else {
+			friendButton.classList.value = '';
+			const acceptButton = document.createElement('div');
+			acceptButton.classList.add(
+				'bg-green-500',
+				'hover:bg-green-700',
+				'text-white',
+				'font-bold',
+				'py-2',
+				'px-4',
+				'rounded',
+				'cursor-pointer'
+			);
+			acceptButton.textContent = 'Accept';
+
+			const rejectButton = document.createElement('div');
+			rejectButton.classList.add(
+				'bg-red-400',
+				'hover:bg-red-700',
+				'text-white',
+				'font-bold',
+				'py-2',
+				'px-4',
+				'rounded',
+				'cursor-pointer',
+				'my-4'
+			);
+			rejectButton.textContent = 'Reject';
+
+			friendButton.appendChild(acceptButton);
+			friendButton.appendChild(rejectButton);
+		}
+	}
+
 	let likedPosts;
 	if (user.user_id === profileData.user) {
 		likedPosts = document.createElement('a');
@@ -85,6 +143,8 @@ async function renderProfileInfo() {
 	profileInfoContainer.appendChild(profileAvatar);
 	profileInfoContainer.appendChild(profileDetail);
 
+	profileInfoContainer.appendChild(friendButton);
+
 	if (likedPosts) {
 		profileInfoContainer.appendChild(likedPosts);
 	}
@@ -96,7 +156,7 @@ async function renderProfilePost() {
 	const profileData = await getProfile();
 	const posts = profileData.posts;
 	const postsInfo = document.getElementById('postsInfo');
-	postsInfo.classList.add('grid', 'grid-cols-3', 'gap-4', 'py-4');
+	postsInfo.classList.add('pt-4', 'flex', 'gap-4', 'w-full', 'flex-wrap');
 
 	posts.forEach((post) => {
 		const postContainer = document.createElement('div');
@@ -107,7 +167,8 @@ async function renderProfilePost() {
 			'shadow-lg',
 			'hover:scale-105',
 			'transition-transform',
-			'duration-300'
+			'duration-300',
+			'w-56'
 		);
 
 		const postImage = document.createElement('img');
@@ -125,76 +186,36 @@ async function renderProfilePost() {
 	});
 }
 
-async function renderFriendButton() {
-	const profileInfo = document.getElementById('profileInfo');
-	const friendButton = document.createElement('button');
-	friendButton.id = 'friendButton';
-
-	const loginStatus = await checkLogin();
-	const profileData = await getProfile();
-	if (loginStatus.user_id === profileData.user) {
-		friendButton.classList.add(
-			'bg-white',
-			'hover:bg-gray-100',
-			'text-gray-800',
-			'font-semibold',
-			'py-2',
-			'px-4',
-			'border-b',
-			'border-gray-400',
-			'rounded',
-			'shadow'
-		);
-		friendButton.textContent = 'Friends';
-
-		profileInfo.appendChild(friendButton);
-	} else {
-		const relationData = await getRelationData();
-		const relation = await getFriendshipStatus(
-			relationData,
-			profileData.user
-		);
-
-		friendButton.classList.add(
-			'friendStatus',
-			'bg-white',
-			'hover:bg-gray-100',
-			'text-gray-800',
-			'font-semibold',
-			'py-2',
-			'px-4',
-			'border-b',
-			'border-gray-400',
-			'rounded',
-			'shadow'
-		);
-		friendButton.textContent = relation;
-		friendButton.dataset.profileAuthor = profileData.user;
-
-		profileInfo.appendChild(friendButton);
-	}
-}
-
-function friendButtonClick() {
+async function friendButtonClick() {
 	const friendButton = document.getElementById('friendButton');
-	friendButton.addEventListener('click', function () {
-		const buttonValue = friendButton.textContent;
+	const profileData = await getProfile();
+	const profileId = profileData.user;
 
+	friendButton.addEventListener('click', function (event) {
+		const buttonValue = event.target.textContent;
 		if (buttonValue === 'Friends') {
+			const url = '/profiles/profile/friends/';
 			const originUrl = window.location.origin;
-			const url = 'profile/friends/';
-			const absoluteUrl = `${originUrl}/profiles/${url}`;
+			const friendsUrl = `${originUrl}${url}`;
+			window.location.href = friendsUrl;
+		}
 
-			window.location.href = absoluteUrl;
+		if (buttonValue === 'Add friend') {
+			addFriend(profileId).then(() => window.location.reload());
+		}
+
+		if (buttonValue === 'Accept') {
+			accept(profileId).then(() => window.location.reload());
+		}
+
+		if (buttonValue === 'Reject') {
+			reject(profileId).then(() => window.location.reload());
 		}
 	});
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-	renderProfileInfo()
-		.then(renderFriendButton)
-		.then(friendButtonClick)
-		.then(addFriend);
+	renderProfileInfo().then(friendButtonClick);
 	renderProfilePost();
 });
 
@@ -212,8 +233,6 @@ function getFriendshipStatus(relationData, someone_id) {
 	} else if (relation.status === 'send' && relation.receiver === someone_id) {
 		return 'Waiting Approved';
 	} else if (relation.status === 'send' && relation.sender === someone_id) {
-		return 'Accept';
+		return 'check';
 	}
-
-	return 'Add Friend';
 }

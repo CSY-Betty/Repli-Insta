@@ -1,5 +1,6 @@
 import { checkLogin } from '../auth/logStatus.js';
 import { getRelationData } from './datafetch.js';
+import { accept, reject } from './addFriend.js';
 
 async function renderFriendRelate(relation) {
 	const userId = await checkLogin();
@@ -102,7 +103,8 @@ async function renderFriendList() {
 					'font-bold',
 					'py-2',
 					'px-4',
-					'rounded'
+					'rounded',
+					'cursor-pointer'
 				);
 				acceptButton.dataset.profile =
 					relation.counterpart_profile.user;
@@ -117,7 +119,8 @@ async function renderFriendList() {
 					'font-bold',
 					'py-2',
 					'px-4',
-					'rounded'
+					'rounded',
+					'cursor-pointer'
 				);
 				rejectButton.dataset.profile =
 					relation.counterpart_profile.user;
@@ -156,74 +159,10 @@ function updateFriend() {
 			const profileId = event.target.getAttribute('data-profile');
 
 			if (event.target.classList.contains('AcceptButton')) {
-				accept(profileId);
+				accept(profileId).then(window.location.reload());
 			} else if (event.target.classList.contains('RejectButton')) {
-				reject(profileId);
+				reject(profileId).then(window.location.reload());
 			}
 		}
 	});
-}
-
-async function accept(profileId) {
-	const userId = await checkLogin();
-	// 執行接受操作，使用 profileId
-	console.log('Accept profile with ID:', profileId);
-
-	const originUrl = window.location.origin;
-	const url = '/profiles/profile/friends/accept/';
-
-	const acceptFriendUrl = `${originUrl}${url}`;
-
-	const csrfToken = document.getElementsByName('csrfmiddlewaretoken')[0]
-		.value;
-
-	const data = {
-		sender: profileId,
-		receiver: userId.user_id,
-		status: 'send',
-	};
-
-	fetch(acceptFriendUrl, {
-		method: 'PUT',
-		headers: {
-			'Content-Type': 'application/json',
-			'X-CSRFToken': csrfToken,
-		},
-		body: JSON.stringify(data),
-	})
-		.then((response) => response.json())
-		.then((data) => console.log('sucess: ', data))
-		.catch(console.error());
-}
-
-async function reject(profileId) {
-	// 執行拒絕操作，使用 profileId
-	console.log('Reject profile with ID:', profileId);
-	const userId = await checkLogin();
-
-	const originUrl = window.location.origin;
-	const url = `/profiles/profile/friends/reject/${profileId}`;
-
-	const rejectFriendUrl = `${originUrl}${url}`;
-
-	const csrfToken = document.getElementsByName('csrfmiddlewaretoken')[0]
-		.value;
-
-	const data = {
-		sender: profileId,
-		receiver: userId.user_id,
-		status: 'send',
-	};
-
-	fetch(rejectFriendUrl, {
-		method: 'DELETE',
-		headers: {
-			'Content-Type': 'application/json',
-			'X-CSRFToken': csrfToken,
-		},
-		body: JSON.stringify(data),
-	})
-		.then((response) => response.json())
-		.then((data) => console.log('sucess: ', data))
-		.catch(console.error());
 }
