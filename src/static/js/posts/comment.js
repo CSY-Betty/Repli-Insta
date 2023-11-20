@@ -17,7 +17,6 @@ export function postComment(post_id) {
 			post: post_id,
 			body: commentBody,
 		};
-		console.log(commentData);
 
 		fetch('comment/create/', {
 			method: 'POST',
