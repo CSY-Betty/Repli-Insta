@@ -55,10 +55,16 @@ function createPost() {
 		const author = document.getElementById('userId').innerText;
 		formData.append('author', author);
 
-		const url = 'post/create/';
+		const url = '/posts/post/create/';
+		const originUrl = window.location.origin;
+		const postUrl = `${originUrl}${url}`;
 
-		fetch(url, {
+		fetch(postUrl, {
 			method: 'POST',
+			headers: {
+				'X-CSRFToken': csrfToken,
+			},
+
 			body: formData,
 		})
 			.then((response) => response.json())
