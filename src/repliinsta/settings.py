@@ -29,6 +29,10 @@ ALLOWED_HOSTS = ["54.178.244.123", "127.0.0.1", "planabcd.site"]
 
 CSRF_TRUSTED_ORIGINS = ["https://planabcd.site"]
 
+CORS_ALLOWED_ORIGINS = [
+    "https://planabcd.site",
+]
+
 
 # Application definition
 
@@ -61,6 +65,8 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     # django-allauth
     "allauth.account.middleware.AccountMiddleware",
+    # django-cors-headers
+    "corsheaders.middleware.CorsMiddleware",
 ]
 
 ROOT_URLCONF = "repliinsta.urls"
