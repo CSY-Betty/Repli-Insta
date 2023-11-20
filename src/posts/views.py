@@ -174,6 +174,9 @@ class LikePostView(ListCreateAPIView):
 
         if existing_like:
             existing_like.delete()
+
+            post = Post.objects.get(id=post_id)
+            post.liked.remove(user_profile)
             return Response(
                 {"message": "Like removed successfully."}, status=status.HTTP_200_OK
             )
