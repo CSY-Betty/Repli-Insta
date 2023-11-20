@@ -27,7 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["54.178.244.123", "127.0.0.1", "planabcd.site"]
 
-CSRF_TRUSTED_ORIGINS = ["http://*", "https://*"]
+CSRF_TRUSTED_ORIGINS = ["https://planabcd.site"]
 
 
 # Application definition
