@@ -116,14 +116,11 @@ class CreatePostView(CreateAPIView):
     enderer_classes = [JSONOpenAPIRenderer]
 
     def perform_create(self, serializer):
-        # 查看接收到的資料
         received_data = self.request.data
         print("Received data:", received_data)
 
-        # 如果您需要在創建 Comment 之前執行其他邏輯，可以在這裡實現
         print("Performing additional logic before creating Comment...")
 
-        # 繼續執行原始的 perform_create
         super().perform_create(serializer)
 
 
