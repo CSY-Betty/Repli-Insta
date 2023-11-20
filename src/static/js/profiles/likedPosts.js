@@ -84,7 +84,12 @@ async function renderCenterPosts() {
 		const postLikeStatus = await checkPostLikeStatus(post.post_id);
 
 		const postLikeButton = document.createElement('img');
-		postLikeButton.classList.add('postLikeButton', 'w-6', 'h-6');
+		postLikeButton.classList.add(
+			'postLikeButton',
+			'w-6',
+			'h-6',
+			'cursor-pointer'
+		);
 		if (postLikeStatus.length != 0) {
 			postLikeButton.src = '/static/img/like.png';
 		} else {
@@ -118,6 +123,8 @@ async function renderCenterPosts() {
 
 document.addEventListener('DOMContentLoaded', function () {
 	renderCenterPosts();
+	const renderComplete = new Event('renderComplete');
+	document.dispatchEvent(renderComplete);
 });
 
 function timeCalculate(time) {
