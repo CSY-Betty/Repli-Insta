@@ -29,7 +29,7 @@ export function postComment(post_id) {
 		})
 			.then((response) => response.json())
 			.then((data) => {
-				console.log('成功創建評論:', data);
+				window.location.reload();
 			})
 			.catch((error) => {
 				console.error('創建評論時發生錯誤:', error);
