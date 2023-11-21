@@ -119,28 +119,41 @@ async function renderCenterPosts() {
 	}
 }
 
-function createRightPost(postData) {
-	const rightPostContainer = document.getElementById('rightPostContainer');
-	rightPostContainer.innerHTML = '';
-	rightPostContainer.classList.add(
-		'z-20',
-		'ml-10',
+function createPostContainer(postData) {
+	console.log(postData);
+	postModal.classList.add(
+		'hidden',
+		'flex',
+		'flex-row',
+		'justify-center',
+		'fade',
+		'bg-slate-300/50',
+		'h-full',
+		'w-full',
+		'z-50',
 		'fixed',
-		'w-80',
+		'items-center'
+	);
+
+	const postContainer = document.createElement('div');
+	postContainer.classList.add(
+		'w-3/5',
+		'h-3/5',
+		'bg-white',
 		'rounded',
 		'overflow-hidden',
-		'shadow-lg',
 		'flex',
-		'flex-col',
-		'transform',
-		'transition-transform',
-		'ease-in-out',
-		'duration-300'
+		'flex-row'
 	);
 
 	const postImage = document.createElement('img');
 	postImage.src = postData.image;
-	postImage.classList.add('h-48', 'object-cover');
+	postImage.classList.add('h-full', 'w-3/5', 'object-cover', 'self-center');
+
+	const postInfo = document.createElement('div');
+	postInfo.id = 'postInfo';
+
+	postInfo.classList.add('h-full', 'flex', 'flex-col', 'w-2/5');
 
 	const authorInfo = document.createElement('div');
 	authorInfo.classList.add(
@@ -148,7 +161,8 @@ function createRightPost(postData) {
 		'flex-row',
 		'px-6',
 		'py-2',
-		'items-center'
+		'items-center',
+		'h-1/6'
 	);
 
 	const authorAvatar = document.createElement('img');
@@ -158,7 +172,8 @@ function createRightPost(postData) {
 		'w-8',
 		'rounded-full',
 		'ring-2',
-		'ring-white'
+		'ring-white',
+		'mx-2'
 	);
 	authorAvatar.src = postData.author_profile.avatar;
 
@@ -174,27 +189,45 @@ function createRightPost(postData) {
 	postTime.innerText = time;
 
 	const postContent = document.createElement('div');
-	postContent.classList.add('px-6', 'py-4', 'text-gray-700', 'text-base');
+	postContent.classList.add(
+		'px-6',
+		'py-4',
+		'text-gray-700',
+		'text-base',
+		'h-2/6'
+	);
 	postContent.innerText = postData.content;
 
-	authorData.appendChild(authorName);
-	authorData.appendChild(postTime);
-
 	authorInfo.appendChild(authorAvatar);
-	authorInfo.appendChild(authorData);
+	authorInfo.appendChild(authorName);
+	authorInfo.appendChild(postTime);
 
-	rightPostContainer.appendChild(postImage);
-	rightPostContainer.appendChild(authorInfo);
-	rightPostContainer.appendChild(postContent);
+	postInfo.appendChild(authorInfo);
+	postInfo.appendChild(postContent);
+
+	postContainer.appendChild(postImage);
+	postContainer.appendChild(postInfo);
+
+	postModal.appendChild(postContainer);
 }
 
-function createRightComment(commmentsData) {
-	const rightPostContainer = document.getElementById('rightPostContainer');
+function createCommentContainer(commmentsData) {
+	const postInfo = document.getElementById('postInfo');
+
+	const commentContainer = document.createElement('div');
+	commentContainer.classList.add(
+		'flex',
+		'flex-col',
+		'px-6',
+		'py-2',
+		'overflow-y-scroll',
+		'h-2/6',
+		'mt-3/5'
+	);
 
 	commmentsData.forEach((comment) => {
-		const commentContainer = document.createElement('div');
-		commentContainer.classList.add('flex', 'flex-row', 'px-6', 'py-2');
-
+		const commenterInfo = document.createElement('div');
+		commenterInfo.classList.add('flex', 'flex-row');
 		const commentAvatar = document.createElement('img');
 		commentAvatar.src = comment.commenter_profile.avatar;
 		commentAvatar.classList.add(
@@ -209,29 +242,27 @@ function createRightComment(commmentsData) {
 		commentContent.innerText = comment.body;
 		commentContent.classList.add('px-2');
 
-		commentContainer.appendChild(commentAvatar);
-		commentContainer.appendChild(commentContent);
+		commenterInfo.appendChild(commentAvatar);
+		commenterInfo.appendChild(commentContent);
 
-		rightPostContainer.appendChild(commentContainer);
+		commentContainer.appendChild(commenterInfo);
 	});
+	postInfo.appendChild(commentContainer);
 }
 
-function createRightCommentForm(post_id) {
-	const rightPostContainer = document.getElementById('rightPostContainer');
+function createCommentForm(post_id) {
+	const postInfo = document.getElementById('postInfo');
 
 	const commentForm = document.createElement('form');
 	commentForm.classList.add(
 		'commentForm',
 		'flex',
 		'w-full',
-		'max-w-xl',
-		'bg-white',
 		'rounded-lg',
-		'px-4',
-		'pt-2',
-		'items-center',
-		'justify-center',
-		'mb-2'
+		'mt-auto',
+		'mb-2',
+		'justify-end',
+		'mr-2'
 	);
 
 	const commentText = document.createElement('textarea');
@@ -269,29 +300,43 @@ function createRightCommentForm(post_id) {
 	commentForm.appendChild(commentButton);
 	commentForm.appendChild(commentSubmit);
 
-	rightPostContainer.appendChild(commentForm);
+	postInfo.appendChild(commentForm);
 }
 
-async function renderRightPost() {
+async function showPost() {
 	const postsContainer = document.getElementById('postsContainer');
+	const postModal = document.getElementById('postModal');
 
 	postsContainer.addEventListener('click', async (event) => {
 		const clickImage = event.target.closest('.post_image');
 		const post_id = clickImage?.getAttribute('data-post-id');
 		if (post_id) {
 			const postData = await getPostData(post_id);
-			createRightPost(postData[0]);
+			postModal.innerHTML = ''; // 清空内容
+
+			createPostContainer(postData[0]);
+			postModal.classList.remove('hidden');
+			// postModal.showModal();
+
 			const commentsData = await getCommentsData(post_id);
-			createRightCommentForm(post_id);
-			createRightComment(commentsData);
+			createCommentContainer(commentsData);
+
+			createCommentForm(post_id);
 			postComment(post_id);
+
+			postModal.addEventListener('click', (event) => {
+				console.log(event.target);
+				if (event.target === postModal) {
+					postModal.classList.add('hidden');
+				}
+			});
 		}
 	});
 }
 
 document.addEventListener('DOMContentLoaded', function () {
 	renderCenterPosts();
-	renderRightPost();
+	showPost();
 	const renderComplete = new Event('renderComplete');
 	document.dispatchEvent(renderComplete);
 });

@@ -21,25 +21,24 @@ function dropdownMenu() {
 	dropdown.addEventListener('mouseleave', hideDropdown);
 }
 
-function showPost() {
+function showWritePostForm() {
 	const postButton = document.getElementById('postButton');
-	const postDialog = document.getElementById('postDialog');
+	const writePostDialog = document.getElementById('writePostDialog');
 
 	postButton.addEventListener('click', function () {
-		postDialog.showModal();
-		createPost();
+		writePostDialog.showModal();
+		writePost();
 	});
 
-	postDialog.addEventListener('click', function (event) {
-		if (event.target === postDialog) {
-			postDialog.close();
+	writePostDialog.addEventListener('click', function (event) {
+		if (event.target === writePostDialog) {
+			writePostDialog.close();
 		}
 	});
 }
 
-function createPost() {
+function writePost() {
 	const postForm = document.getElementById('postForm');
-	const submitPostButton = document.getElementById('submitPostButton');
 
 	postForm.addEventListener('submit', function (event) {
 		event.preventDefault();
@@ -47,10 +46,6 @@ function createPost() {
 		const formData = new FormData(postForm);
 
 		const csrfToken = formData.get('csrfmiddlewaretoken');
-
-		const file = formData.get('image');
-
-		const content = formData.get('content');
 
 		const author = document.getElementById('userId').innerText;
 		formData.append('author', author);
@@ -82,7 +77,7 @@ async function checkLoginStatus() {
 	const user = await checkLogin();
 	if (user.user_id != 999) {
 		dropdownMenu();
-		showPost();
+		showWritePostForm();
 	}
 }
 
