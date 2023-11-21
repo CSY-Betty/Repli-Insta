@@ -1,26 +1,5 @@
 import { checkLogin } from './auth/logStatus.js';
 
-function dropdownMenu() {
-	const button = document.getElementById('dropdownHoverButton');
-	const dropdown = document.getElementById('dropdownHover');
-
-	function showDropdown() {
-		dropdown.classList.remove('hidden');
-	}
-
-	function hideDropdown() {
-		dropdown.classList.add('hidden');
-	}
-
-	button.addEventListener('mouseenter', showDropdown);
-
-	button.addEventListener('mouseleave', hideDropdown);
-
-	dropdown.addEventListener('mouseenter', showDropdown);
-
-	dropdown.addEventListener('mouseleave', hideDropdown);
-}
-
 function showWritePostForm() {
 	const postButton = document.getElementById('postButton');
 	const writePostDialog = document.getElementById('writePostDialog');
@@ -76,7 +55,6 @@ function writePost() {
 async function checkLoginStatus() {
 	const user = await checkLogin();
 	if (user.user_id != 999) {
-		dropdownMenu();
 		showWritePostForm();
 	}
 }

@@ -1,39 +1,51 @@
 {% url 'index' as path_to_index %}
 {% load static %}
 
-<nav class="z-40 fixed bg-white py-2 border-b border-gray-100 w-full h-16 flex items-center">
-    <div class="container mx-auto flex items-center justify-between">
+<nav class="z-40 fixed bg-white w-1/6 h-full border-r">
+    <div class="container mx-auto flex items-center justify-between flex-col h-full">
         <div class="flex items-center">
-            <a href="/" class="text-rose-400 text-2xl font-semibold">Repli Insta</a>
+            <a href="/" class="text-rose-400 text-2xl font-semibold mt-8">Repli Insta</a>
         </div>
-        <div class="flex flex-row justify-start items-center">
-            <a href="{% url 'posts:main-post-view' %}" class="px-2 text-rose-400 hover:scale-105 transition-transform duration-300 cursor-pointer">New Posts</a>
+        <div class="flex flex-col w-9/12 h-full mt-4">
+            <a href="{% url 'posts:main-post-view' %}" class="flex flex-row items-center py-4 rounded text-rose-400 hover:scale-105 hover:bg-slate-200/50 transition-transform duration-300 cursor-pointer mt-4 px-2"><img src="{% static 'img/navigation.png' %}"  class="h-8 w-8">
+                <p class="mx-4">Explore</p>
+            </a>
+                
             
             {% if request.user.is_authenticated %}
-                <img src="{% static 'img/add.svg' %}" id="postButton" class="h-16 w-16 px-4 stroke-rose-800 hover:scale-105 transition-transform duration-300 cursor-pointer">
-                
-                <div class="flex items-center relative">
-                    <img class="h-8 w-8 rounded-full ring-2 ring-white hover:scale-105 transition-transform duration-300 cursor-pointer" src="{{ user_avatar.url }}" id="dropdownHoverButton">
 
-                    <!-- Dropdown menu -->
-                    <div id="dropdownHover" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow absolute top-full right-0 w-44 dark:bg-gray-700">
-                        <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownHoverButton">
-                            <li>
-                            <a href="{% url 'profiles:profile-view' slug=user_slug %}" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">My Profile</a>
-                            </li>
-                            <li>
-                            <a href="{% url 'profiles:profile-set' %}" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Settings</a>
-                            </li>
-                            <li>
-                            <a href="{% url 'account_logout' %}" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Sign out</a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
+            <a href="{% url 'profiles:friends' %}" class="flex flex-row items-center px-2 py-4 rounded text-rose-400 hover:scale-105 hover:bg-slate-200/50 transition-transform duration-300 cursor-pointer mt-8"><img src="{% static 'img/following.png' %}"  class="h-8 w-8">
+                <p class="mx-4">Friends</p>
+            </a>
+
+            <a href="{% url 'profiles:liked-posts' %}" class="flex flex-row items-center px-2 py-4 rounded text-rose-400 hover:scale-105 hover:bg-slate-200/50 transition-transform duration-300 cursor-pointer mt-4"><img src="{% static 'img/unlike.png' %}"  class="h-8 w-8">
+                <p class="mx-4">Likes</p>
+            </a>
+
+            <div id="postButton" class="flex flex-row items-center py-4 rounded text-rose-400 hover:scale-105 hover:bg-slate-200/50 transition-transform duration-300 cursor-pointer mt-4 px-2">
+                <img src="{% static 'img/add.svg' %}"  class="h-8 w-8">
+                <p class="mx-4">Create</p>
+            </div>
+
+            <a href="{% url 'profiles:profile-view' slug=user_slug %}" class="flex flex-row items-center py-4 rounded text-rose-400 hover:scale-105 hover:bg-slate-200/50 transition-transform duration-300 cursor-pointer mt-4 px-2">
+                <img src="{{ user_avatar.url }}"  class="h-8 w-8 rounded-full">
+                <p class="mx-4">Profile</p>
+            </a>
+                
+            <a href="{% url 'profiles:profile-set' %}" class="flex flex-row items-center py-4 rounded text-rose-400 hover:scale-105 hover:bg-slate-200/50 transition-transform duration-300 cursor-pointer mt-auto px-2">
+                <img src="{% static 'img/user-gear.png' %}"  class="h-8 w-8">
+                <p class="mx-4">Setting</p>
+            </a>
+
+            <a href="{% url 'account_logout' %}" class="flex flex-row items-center py-4 rounded text-rose-400 hover:scale-105 hover:bg-slate-200/50 transition-transform duration-300 cursor-pointer mb-2 px-2">
+                <img src="{% static 'img/signout.png' %}"  class="h-8 w-8">
+                <p class="mx-4">Sign out</p>
+            </a>
+
             {% else %}
-                <div class="flex items-center relative">
-                    <a href="{% url 'account_signup' %}" class="text-black ml-6 hover:text-rose-400">Sign up</a>
-                    <a href="{% url 'account_login' %}" class="text-black ml-6 hover:text-rose-400">Sign in</a>
+                <div class="flex items-center relative flex-col">
+                    <a href="{% url 'account_signup' %}" class="text-black ml-6 hover:text-rose-400 mt-8">Sign up</a>
+                    <a href="{% url 'account_login' %}" class="text-black ml-6 hover:text-rose-400 mt-8">Sign in</a>
                             
                 </div>
             {% endif %}

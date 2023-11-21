@@ -14,24 +14,10 @@
 	
 	{% include "navbar.html" %}
 
-{% block content %}
+	{% block content %}
 
-{% endblock content %}
+	{% endblock content %}
 
-	<div class="flex px-2 ">
-		<div class="w-1/4 px-2 mt-20">
-			{% block left %}
-			{% endblock left %}
-		</div>
-		<div class="w-2/4 px-2 mt-20">
-			{% block center %}
-			{% endblock center %}
-		</div>
-		<div class="w-1/4 px-2 mt-20">
-			{% block right %}
-			{% endblock right %}
-		</div>
-	</div>
 
 	
 	<script type="module" src="{% static 'js/navbar.js' %}"></script>

@@ -1,4 +1,4 @@
-import { postComment } from './comment.js';
+// import { postComment } from './comment.js';
 import { getPosts, getPostData, getCommentsData } from './datafetch.js';
 import { checkLogin } from '../auth/logStatus.js';
 
@@ -6,11 +6,12 @@ async function renderCenterPosts() {
 	const postsData = await getPosts();
 	const postsContainer = document.getElementById('postsContainer');
 	postsContainer.classList.add(
-		'pt-4',
-		'flex',
+		'ml-96',
+		'mr-48',
+		'pt-8',
+		'grid',
 		'gap-4',
-		'w-full',
-		'flex-wrap'
+		'grid-cols-3'
 	);
 
 	for (const post of postsData) {
@@ -21,8 +22,7 @@ async function renderCenterPosts() {
 			'shadow-lg',
 			'hover:scale-105',
 			'transition-transform',
-			'duration-300',
-			'w-56'
+			'duration-300'
 		);
 
 		const postImage = document.createElement('img');
@@ -35,92 +35,14 @@ async function renderCenterPosts() {
 
 		postImage.alt = 'No Image';
 		postImage.dataset.postId = post.post_id;
-		const authorInfo = document.createElement('div');
-		authorInfo.classList.add(
-			'flex',
-			'flex-row',
-			'px-6',
-			'py-2',
-			'items-center',
-			'justify-between'
-		);
-
-		const authorAvatar = document.createElement('img');
-		authorAvatar.classList.add(
-			'authorAvatar',
-			'h-8',
-			'w-8',
-			'rounded-full',
-			'ring-2',
-			'ring-white',
-			'cursor-pointer'
-		);
-		authorAvatar.src = post.author_profile.avatar;
-		authorAvatar.dataset.authorSlug = post.author_profile.slug;
-
-		const authorData = document.createElement('div');
-		authorData.classList.add('px-2', 'overflow-hidden');
-
-		const authorName = document.createElement('div');
-		authorName.classList.add('overflow-ellipsis', 'no-wrap');
-		authorName.innerText = post.author_profile.first_name;
-
-		const postTime = document.createElement('div');
-		postTime.classList.add('text-xs');
-		let time = timeCalculate(post.created);
-		postTime.innerText = time;
-
-		const postLike = document.createElement('div');
-		postLike.classList.add('postLike', 'flex', 'flex-col', 'items-end');
-
-		const postLikeNumber = document.createElement('div');
-		postLikeNumber.classList.add('postLikeNumber');
-		postLikeNumber.innerText = post.liked.length;
-
-		const user = await checkLogin();
-		let postLikeButton;
-		if (user.user_id != 999) {
-			const postLikeStatus = await checkPostLikeStatus(post.post_id);
-
-			postLikeButton = document.createElement('img');
-
-			postLikeButton.classList.add('postLikeButton', 'w-6', 'h-6');
-			if (postLikeStatus.length != 0) {
-				postLikeButton.src = '/static/img/like.png';
-			} else {
-				postLikeButton.src = '/static/img/unlike.png';
-			}
-
-			postLikeButton.dataset.postId = post.post_id;
-		}
-
-		const postContent = document.createElement('div');
-		postContent.classList.add('px-6', 'py-4', 'text-gray-700', 'text-base');
-		postContent.innerText = post.content;
-
-		postLike.appendChild(postLikeNumber);
-		if (postLikeButton) {
-			postLike.appendChild(postLikeButton);
-		}
-
-		authorInfo.appendChild(authorAvatar);
-
-		authorData.appendChild(authorName);
-		authorData.appendChild(postTime);
-		authorInfo.appendChild(authorData);
-
-		authorInfo.appendChild(postLike);
 
 		postContainer.appendChild(postImage);
-		postContainer.appendChild(authorInfo);
-		postContainer.appendChild(postContent);
 
 		postsContainer.appendChild(postContainer);
 	}
 }
 
 function createPostContainer(postData) {
-	console.log(postData);
 	postModal.classList.add(
 		'hidden',
 		'flex',
@@ -137,8 +59,8 @@ function createPostContainer(postData) {
 
 	const postContainer = document.createElement('div');
 	postContainer.classList.add(
-		'w-3/5',
-		'h-3/5',
+		'w-4/5',
+		'h-4/5',
 		'bg-white',
 		'rounded',
 		'overflow-hidden',
@@ -153,16 +75,23 @@ function createPostContainer(postData) {
 	const postInfo = document.createElement('div');
 	postInfo.id = 'postInfo';
 
-	postInfo.classList.add('h-full', 'flex', 'flex-col', 'w-2/5');
+	postInfo.classList.add(
+		'h-full',
+		'flex',
+		'flex-col',
+		'w-2/5',
+		'px-2',
+		'items-start'
+	);
 
 	const authorInfo = document.createElement('div');
 	authorInfo.classList.add(
 		'flex',
 		'flex-row',
-		'px-6',
-		'py-2',
 		'items-center',
-		'h-1/6'
+		'h-20',
+		'w-full',
+		'border-b'
 	);
 
 	const authorAvatar = document.createElement('img');
@@ -178,15 +107,14 @@ function createPostContainer(postData) {
 	authorAvatar.src = postData.author_profile.avatar;
 
 	const authorData = document.createElement('div');
-	authorData.classList.add('px-2');
+	authorData.classList.add('flex', 'flex-col');
 
 	const authorName = document.createElement('div');
 	authorName.innerText = postData.author_profile.first_name;
 
-	const postTime = document.createElement('div');
-	postTime.classList.add('text-xs');
-	let time = timeCalculate(postData.created);
-	postTime.innerText = time;
+	const addAuthor = document.createElement('div');
+	addAuthor.classList.add('text-rose-400', 'cursor-pointer', 'ml-auto');
+	addAuthor.innerText = 'Add Friend';
 
 	const postContent = document.createElement('div');
 	postContent.classList.add(
@@ -194,13 +122,15 @@ function createPostContainer(postData) {
 		'py-4',
 		'text-gray-700',
 		'text-base',
-		'h-2/6'
+		'h-2/6',
+		'border-b',
+		'w-full'
 	);
 	postContent.innerText = postData.content;
 
 	authorInfo.appendChild(authorAvatar);
 	authorInfo.appendChild(authorName);
-	authorInfo.appendChild(postTime);
+	authorInfo.appendChild(addAuthor);
 
 	postInfo.appendChild(authorInfo);
 	postInfo.appendChild(postContent);
@@ -215,6 +145,7 @@ function createCommentContainer(commmentsData) {
 	const postInfo = document.getElementById('postInfo');
 
 	const commentContainer = document.createElement('div');
+	commentContainer.id = 'commentContainer';
 	commentContainer.classList.add(
 		'flex',
 		'flex-col',
@@ -222,12 +153,14 @@ function createCommentContainer(commmentsData) {
 		'py-2',
 		'overflow-y-scroll',
 		'h-2/6',
-		'mt-3/5'
+		'mt-3/5',
+		'border-b',
+		'w-full'
 	);
 
-	commmentsData.forEach((comment) => {
+	commmentsData.reverse().forEach((comment) => {
 		const commenterInfo = document.createElement('div');
-		commenterInfo.classList.add('flex', 'flex-row');
+		commenterInfo.classList.add('flex', 'flex-row', 'py-2');
 		const commentAvatar = document.createElement('img');
 		commentAvatar.src = comment.commenter_profile.avatar;
 		commentAvatar.classList.add(
@@ -250,6 +183,53 @@ function createCommentContainer(commmentsData) {
 	postInfo.appendChild(commentContainer);
 }
 
+async function createPostLikeContainer(postData) {
+	const postInfo = document.getElementById('postInfo');
+	const postLikeContainer = document.createElement('div');
+	postLikeContainer.classList.add(
+		'w-full',
+		'border-b',
+		'h-16',
+		'flex',
+		'flex-row',
+		'items-center'
+	);
+
+	const postTime = document.createElement('div');
+	postTime.classList.add('text-xs', 'px-2');
+	let time = timeCalculate(postData.created);
+	postTime.innerText = time;
+
+	const postLike = document.createElement('div');
+	postLike.classList.add('postLike', 'flex', 'flex-col', 'items-end');
+
+	const postLikeNumber = document.createElement('div');
+	postLikeNumber.classList.add('postLikeNumber', 'ml-auto', 'px-2');
+	postLikeNumber.innerText = postData.liked.length + ' ' + 'Likes';
+
+	const user = await checkLogin();
+	let postLikeButton;
+	if (user.user_id != 999) {
+		const postLikeStatus = await checkPostLikeStatus(postData.post_id);
+
+		postLikeButton = document.createElement('img');
+
+		postLikeButton.classList.add('postLikeButton', 'w-6', 'h-6', 'mx-2');
+		if (postLikeStatus.length != 0) {
+			postLikeButton.src = '/static/img/like.png';
+		} else {
+			postLikeButton.src = '/static/img/unlike.png';
+		}
+
+		postLikeButton.dataset.postId = postData.post_id;
+	}
+	postLikeContainer.appendChild(postTime);
+	postLikeContainer.appendChild(postLikeNumber);
+	postLikeContainer.appendChild(postLikeButton);
+
+	postInfo.appendChild(postLikeContainer);
+}
+
 function createCommentForm(post_id) {
 	const postInfo = document.getElementById('postInfo');
 
@@ -261,8 +241,7 @@ function createCommentForm(post_id) {
 		'rounded-lg',
 		'mt-auto',
 		'mb-2',
-		'justify-end',
-		'mr-2'
+		'justify-end'
 	);
 
 	const commentText = document.createElement('textarea');
@@ -276,7 +255,8 @@ function createCommentForm(post_id) {
 		'h-10',
 		'py-2',
 		'px-3',
-		'font-medium'
+		'font-medium',
+		'w-full'
 	);
 	commentText.setAttribute('required', true);
 
@@ -314,23 +294,35 @@ async function showPost() {
 			const postData = await getPostData(post_id);
 			postModal.innerHTML = ''; // 清空内容
 
-			createPostContainer(postData[0]);
+			await createPostContainer(postData[0]);
 			postModal.classList.remove('hidden');
-			// postModal.showModal();
 
 			const commentsData = await getCommentsData(post_id);
-			createCommentContainer(commentsData);
+			await createCommentContainer(commentsData);
 
-			createCommentForm(post_id);
-			postComment(post_id);
+			await createPostLikeContainer(postData[0]);
+			await createCommentForm(post_id);
+
+			sendComment(post_id);
 
 			postModal.addEventListener('click', (event) => {
-				console.log(event.target);
 				if (event.target === postModal) {
 					postModal.classList.add('hidden');
 				}
 			});
 		}
+	});
+}
+
+function sendComment(post_id) {
+	const commentForm = document.querySelector('.commentForm');
+	const commentButton = commentForm.querySelector('.commentButton');
+
+	commentButton.addEventListener('click', async function (event) {
+		event.preventDefault();
+		postComment(post_id);
+		const commentText = commentForm.querySelector('.commentText');
+		commentText.value = '';
 	});
 }
 
@@ -375,4 +367,61 @@ function checkPostLikeStatus(post_id) {
 		.catch((error) => {
 			console.error(error.message);
 		});
+}
+
+function postComment(post_id) {
+	const user_id = document.getElementById('userId').innerText;
+
+	const commentBody = document.querySelector('.commentText').value;
+
+	const csrfToken = document.getElementsByName('csrfmiddlewaretoken')[0]
+		.value;
+
+	const commentData = {
+		user: user_id,
+		post: post_id,
+		body: commentBody,
+	};
+
+	fetch('comment/create/', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			'X-CSRFToken': csrfToken,
+		},
+		body: JSON.stringify(commentData),
+	})
+		.then((response) => response.json())
+		.then((data) => {
+			appendNewComment(data);
+		})
+
+		.catch((error) => {
+			console.error('創建評論時發生錯誤:', error);
+		});
+}
+
+function appendNewComment(newCommentData) {
+	const commentContainer = document.getElementById('commentContainer');
+
+	const commenterInfo = document.createElement('div');
+	commenterInfo.classList.add('flex', 'flex-row', 'py-2');
+	const commentAvatar = document.createElement('img');
+	commentAvatar.src = newCommentData.commenter_profile.avatar;
+	commentAvatar.classList.add(
+		'h-8',
+		'w-8',
+		'rounded-full',
+		'ring-2',
+		'ring-white'
+	);
+
+	const commentContent = document.createElement('div');
+	commentContent.innerText = newCommentData.body;
+	commentContent.classList.add('px-2');
+
+	commenterInfo.appendChild(commentAvatar);
+	commenterInfo.appendChild(commentContent);
+
+	commentContainer.insertBefore(commenterInfo, commentContainer.firstChild);
 }
