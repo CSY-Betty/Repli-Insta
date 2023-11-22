@@ -62,7 +62,7 @@ async function renderProfileInfo() {
 
 	const otherInfo = document.createElement('div');
 
-	if (user.user_id != profileData.user) {
+	if (user.user_id != profileData.user && user.user_id !== 999) {
 		const friendButton = document.createElement('div');
 		friendButton.id = 'friendButton';
 		friendButton.classList.add(
@@ -206,6 +206,8 @@ async function renderPost() {
 
 			likePost(postData[0]);
 
+			friendButtonClick();
+
 			postModal.addEventListener('click', (event) => {
 				if (event.target === postModal) {
 					postModal.classList.add('hidden');
@@ -215,33 +217,26 @@ async function renderPost() {
 	});
 }
 
-// async function friendButtonClick() {
-// 	const friendButton = document.getElementById('friendButton');
-// 	const profileData = await getProfile();
-// 	const profileId = profileData.user;
+async function friendButtonClick() {
+	const addAuthor = document.getElementById('addAuthor');
+	const profileData = await getProfile();
+	const profileId = profileData.user;
 
-// 	friendButton.addEventListener('click', function (event) {
-// 		const buttonValue = event.target.textContent;
-// 		if (buttonValue === 'Friends') {
-// 			const url = '/profiles/profile/friends/';
-// 			const originUrl = window.location.origin;
-// 			const friendsUrl = `${originUrl}${url}`;
-// 			window.location.href = friendsUrl;
-// 		}
+	addAuthor.addEventListener('click', function (event) {
+		const buttonValue = event.target.textContent;
+		if (buttonValue === 'Add friend') {
+			addFriend(profileId).then(() => window.location.reload());
+		}
 
-// 		if (buttonValue === 'Add friend') {
-// 			addFriend(profileId).then(() => window.location.reload());
-// 		}
+		if (buttonValue === 'Accept') {
+			accept(profileId).then(() => window.location.reload());
+		}
 
-// 		if (buttonValue === 'Accept') {
-// 			accept(profileId).then(() => window.location.reload());
-// 		}
-
-// 		if (buttonValue === 'Reject') {
-// 			reject(profileId).then(() => window.location.reload());
-// 		}
-// 	});
-// }
+		if (buttonValue === 'Reject') {
+			reject(profileId).then(() => window.location.reload());
+		}
+	});
+}
 
 document.addEventListener('DOMContentLoaded', function () {
 	renderProfileInfo();
@@ -453,7 +448,10 @@ async function createPostLikeContainer(postData) {
 	}
 	postLikeContainer.appendChild(postTime);
 	postLikeContainer.appendChild(postLikeNumber);
-	postLikeContainer.appendChild(postLikeButton);
+
+	if (postLikeButton) {
+		postLikeContainer.appendChild(postLikeButton);
+	}
 
 	postInfo.appendChild(postLikeContainer);
 }

@@ -101,6 +101,8 @@ class RelationshipListView(ListAPIView):
             Q(sender=user.profile) | Q(receiver=user.profile)
         )
 
+        print(queryset)
+
         return queryset
 
 

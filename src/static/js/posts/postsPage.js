@@ -230,7 +230,9 @@ async function createPostLikeContainer(postData) {
 	}
 	postLikeContainer.appendChild(postTime);
 	postLikeContainer.appendChild(postLikeNumber);
-	postLikeContainer.appendChild(postLikeButton);
+	if (postLikeButton) {
+		postLikeContainer.appendChild(postLikeButton);
+	}
 
 	postInfo.appendChild(postLikeContainer);
 }
