@@ -18,6 +18,7 @@ async function renderFriendRelate(relation) {
 async function renderFriendList() {
 	const relationData = await getRelationData();
 	const friendRelate = document.getElementById('friendRelate');
+	friendRelate.classList.add('mr-48', 'ml-96');
 
 	for (const relation of relationData) {
 		const friendContainer = document.createElement('div');
@@ -39,7 +40,7 @@ async function renderFriendList() {
 		friendAvatar.classList.add(
 			'friendAvatar',
 			'w-16',
-			'basis-1/5',
+			'h-16',
 			'rounded-full',
 			'overflow-hidden'
 		);

@@ -767,6 +767,22 @@ video {
   margin-right: 4rem;
 }
 
+.mt-48 {
+  margin-top: 12rem;
+}
+
+.mt-24 {
+  margin-top: 6rem;
+}
+
+.mt-12 {
+  margin-top: 3rem;
+}
+
+.ml-24 {
+  margin-left: 6rem;
+}
+
 .block {
   display: block;
 }

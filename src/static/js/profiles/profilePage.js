@@ -33,7 +33,6 @@ async function renderProfileInfo() {
 		'flex-row',
 		'mr-48',
 		'ml-96',
-		'mt-6',
 		'border-b',
 		'py-4',
 		'pl-16'

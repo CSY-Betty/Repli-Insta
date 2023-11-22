@@ -17,7 +17,7 @@ export async function addFriend(profileId) {
 		status: 'send',
 	};
 
-	fetch(addFriendUrl, {
+	return fetch(addFriendUrl, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
@@ -47,7 +47,7 @@ export async function accept(profileId) {
 		status: 'send',
 	};
 
-	fetch(acceptFriendUrl, {
+	return fetch(acceptFriendUrl, {
 		method: 'PUT',
 		headers: {
 			'Content-Type': 'application/json',
@@ -77,7 +77,7 @@ export async function reject(profileId) {
 		status: 'send',
 	};
 
-	fetch(rejectFriendUrl, {
+	return fetch(rejectFriendUrl, {
 		method: 'DELETE',
 		headers: {
 			'Content-Type': 'application/json',
