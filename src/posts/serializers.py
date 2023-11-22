@@ -58,3 +58,24 @@ class LikePostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Like
         fields = ["user", "post", "value"]
+
+
+class UpdatePostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Post
+        fields = ["content", "image"]
+
+    def update(self, instance, validated_data):
+        instance.content = validated_data.get("content", instance.content)
+        instance.image = validated_data.get("image", instance.image)
+        instance.save()
+        return instance
+
+
+class DeletePostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Post
+        fields = []  # 空字段列表，因為我們只需要 ID 來刪除 Post
+
+    def destroy(self, instance):
+        instance.delete()

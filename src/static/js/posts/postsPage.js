@@ -73,7 +73,6 @@ async function createPostContainer(postData) {
 	const postImage = document.createElement('img');
 	postImage.src = postData.image;
 	postImage.classList.add('h-full', 'w-3/5', 'object-cover', 'self-center');
-
 	const postInfo = document.createElement('div');
 	postInfo.id = 'postInfo';
 
@@ -104,9 +103,11 @@ async function createPostContainer(postData) {
 		'rounded-full',
 		'ring-2',
 		'ring-white',
-		'mx-2'
+		'mx-2',
+		'cursor-pointer'
 	);
 	authorAvatar.src = postData.author_profile.avatar;
+	authorAvatar.dataset.slug = postData.author_profile.slug;
 
 	const authorData = document.createElement('div');
 	authorData.classList.add('flex', 'flex-col');
@@ -316,10 +317,10 @@ async function renderPost() {
 			await createCommentForm(post_id);
 
 			sendComment(post_id);
-
 			friendUpdate(user.user_id, postData[0]);
 			likePost(postData[0]);
 			updateFriend();
+			visitAuthor();
 
 			postModal.addEventListener('click', (event) => {
 				if (event.target === postModal) {
@@ -515,7 +516,6 @@ function updateFriend() {
 			const profileId = event.target.getAttribute('data-author-id');
 
 			if (event.target.innerText === 'Accept') {
-				console.log('hi');
 				accept(profileId).then(window.location.reload());
 			} else if (eevent.target.innerText === 'Reject') {
 				reject(profileId).then(window.location.reload());
@@ -524,9 +524,16 @@ function updateFriend() {
 			const profileId = event.target.getAttribute('data-author-id');
 			remove(profileId).then(window.location.reload());
 		} else if (event.target.innerText === 'Add friend') {
-			console.log('hi');
 			const profileId = event.target.getAttribute('data-author-id');
 			addFriend(profileId).then(window.location.reload());
 		}
+	});
+}
+
+function visitAuthor() {
+	const authorAvatar = document.querySelector('.authorAvatar');
+	authorAvatar.addEventListener('click', () => {
+		const slug = authorAvatar.dataset.slug;
+		window.location.href = '/profiles/' + slug;
 	});
 }

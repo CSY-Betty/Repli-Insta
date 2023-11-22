@@ -15,12 +15,15 @@ from .serializers import (
     PostSerializer,
     CommentSerializer,
     LikePostSerializer,
+    UpdatePostSerializer,
+    DeletePostSerializer,
 )
 from rest_framework.generics import (
     ListAPIView,
     CreateAPIView,
     UpdateAPIView,
     ListCreateAPIView,
+    DestroyAPIView,
 )
 from rest_framework.response import Response
 from rest_framework.renderers import JSONOpenAPIRenderer
@@ -205,93 +208,117 @@ class UserLikedPostsView(ListAPIView):
         return Response(serializer.data)
 
 
-@login_required
-def like_unlike_post(request):
-    user = request.user
-    if request.method == "POST":
-        post_id = request.POST.get("post_id")
-        post_obj = Post.objects.get(id=post_id)
-        profile = Profile.objects.get(user=user)
-
-        if profile in post_obj.liked.all():
-            post_obj.liked.remove(profile)
-        else:
-            post_obj.liked.add(profile)
-
-        like, created = Like.objects.get_or_create(user=profile, post_id=post_id)
-
-        if not created:
-            if like.value == "Like":
-                like.value = "Unlike"
-            else:
-                like.value == "Like"
-        else:
-            like.value = "Like"
-
-            post_obj.save()
-            like.save()
-
-        data = {"value": like.value, "likes": post_obj.liked.all().count()}
-
-        return JsonResponse(data, safe=False)
-
-    return redirect("posts:main-post-view")
+class PostUpdateView(UpdateAPIView, LoginRequiredMixin):
+    serializer_class = UpdatePostSerializer
+    queryset = Post.objects.all()
+    lookup_field = "id"
 
 
-class PostDeleteView(LoginRequiredMixin, DeleteView):
-    model = Post
-    template_name = "posts/confirm_del.html"
-    success_url = reverse_lazy("posts:main-post-view")
-    # success_url = "/posts/"
+class PostDeleteView(DestroyAPIView, LoginRequiredMixin):
+    serializer_class = DeletePostSerializer
+    queryset = Post.objects.all()
+    lookup_field = "id"
 
-    def get_delete_post(self, *args, **kwargs):
-        pk = self.kwargs.get("pk")
-        post = Post.objects.get(pk=pk)
-
-        if not post.author.user == self.request.user:
-            messages.warning(self.request, "You need to be the author.")
-
-        return post
-
-
-class PostUpdateView(LoginRequiredMixin, UpdateView):
-    form_class = PostModelForm
-    model = Post
-    template_name = "posts/update.html"
-    success_url = reverse_lazy("posts:main-post-view")
-
-    def form_valid(self, form):
-        profile = Profile.objects.get(user=self.request.user)
-        if form.instance.author == profile:
-            return super().form_valid(form)
-        else:
-            form.add_error(None, "You need to be the author.")
-            return super().form_invalid(form)
+    def destroy(self, request, *args, **kwargs):
+        try:
+            instance = self.get_object()
+            self.perform_destroy(instance)
+            return Response(
+                {"message": "Post deleted successfully"}, status=status.HTTP_200_OK
+            )
+        except Exception as e:
+            return Response(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
-def get_comment(request):
-    post_id = request.GET.get("post_id")
-    post = Post.objects.get(id=post_id)
-    comments = list(Comment.objects.filter(post=post))
+# @login_required
+# def like_unlike_post(request):
+#     user = request.user
+#     if request.method == "POST":
+#         post_id = request.POST.get("post_id")
+#         post_obj = Post.objects.get(id=post_id)
+#         profile = Profile.objects.get(user=user)
 
-    comment_list = []
-    for comment in comments:
-        comment_data = serialize("json", [comment], fields=("user", "body", "created"))
-        comment_fields = json.loads(comment_data)[0]["fields"]
+#         if profile in post_obj.liked.all():
+#             post_obj.liked.remove(profile)
+#         else:
+#             post_obj.liked.add(profile)
 
-        commenter_instance = comment_fields["user"]
-        commenter_profile = Profile.objects.get(id=commenter_instance)
+#         like, created = Like.objects.get_or_create(user=profile, post_id=post_id)
 
-        commenter_avatar = commenter_profile.avatar.url
-        commenter = commenter_profile.user.username
+#         if not created:
+#             if like.value == "Like":
+#                 like.value = "Unlike"
+#             else:
+#                 like.value == "Like"
+#         else:
+#             like.value = "Like"
 
-        comment_info = {
-            "content": comment_fields["body"],
-            "commenter_avatar": commenter_avatar,
-            "commenter": commenter,
-            "comment_time": comment_fields["created"],
-        }
-        comment_list.append(comment_info)
+#             post_obj.save()
+#             like.save()
 
-    response_data = {"status": "success", "comments": comment_list}
-    return JsonResponse(response_data)
+#         data = {"value": like.value, "likes": post_obj.liked.all().count()}
+
+#         return JsonResponse(data, safe=False)
+
+#     return redirect("posts:main-post-view")
+
+
+# class PostDeleteView(LoginRequiredMixin, DeleteView):
+#     model = Post
+#     template_name = "posts/confirm_del.html"
+#     success_url = reverse_lazy("posts:main-post-view")
+#     # success_url = "/posts/"
+
+#     def get_delete_post(self, *args, **kwargs):
+#         pk = self.kwargs.get("pk")
+#         post = Post.objects.get(pk=pk)
+
+#         if not post.author.user == self.request.user:
+#             messages.warning(self.request, "You need to be the author.")
+
+#         return post
+
+
+# class PostUpdateView(LoginRequiredMixin, UpdateView):
+#     form_class = PostModelForm
+#     model = Post
+#     template_name = "posts/update.html"
+#     success_url = reverse_lazy("posts:main-post-view")
+
+#     def form_valid(self, form):
+#         profile = Profile.objects.get(user=self.request.user)
+#         if form.instance.author == profile:
+#             return super().form_valid(form)
+#         else:
+#             form.add_error(None, "You need to be the author.")
+#             return super().form_invalid(form)
+
+
+# def get_comment(request):
+#     post_id = request.GET.get("post_id")
+#     post = Post.objects.get(id=post_id)
+#     comments = list(Comment.objects.filter(post=post))
+
+#     comment_list = []
+#     for comment in comments:
+#         comment_data = serialize("json", [comment], fields=("user", "body", "created"))
+#         comment_fields = json.loads(comment_data)[0]["fields"]
+
+#         commenter_instance = comment_fields["user"]
+#         commenter_profile = Profile.objects.get(id=commenter_instance)
+
+#         commenter_avatar = commenter_profile.avatar.url
+#         commenter = commenter_profile.user.username
+
+#         comment_info = {
+#             "content": comment_fields["body"],
+#             "commenter_avatar": commenter_avatar,
+#             "commenter": commenter,
+#             "comment_time": comment_fields["created"],
+#         }
+#         comment_list.append(comment_info)
+
+#     response_data = {"status": "success", "comments": comment_list}
+#     return JsonResponse(response_data)

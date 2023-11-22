@@ -6,6 +6,7 @@ import { getPostData } from '../posts/datafetch.js';
 import { getCommentsData } from '../posts/datafetch.js';
 
 import { likePost } from '../posts/likePost.js';
+import { updateThePost, deleteThePost } from '../posts/updatePost.js';
 
 function getProfile() {
 	const currentUrl = window.location.href;
@@ -197,8 +198,12 @@ async function renderPost() {
 			await createCommentForm(post_id);
 
 			sendComment(post_id);
+			if (user.user_id != postData[0].author) {
+				friendUpdate(user.user_id, postData[0]);
+			} else {
+				postUpdate(post_id);
+			}
 
-			friendUpdate(user.user_id, postData[0]);
 			likePost(postData[0]);
 
 			postModal.addEventListener('click', (event) => {
@@ -601,7 +606,7 @@ async function checkRelation(user_id, postData) {
 
 		if (
 			!relationships.some(
-				(item) => item.sender === user_id || item.receiver === user_id
+				(item) => item.sender === author || item.receiver === author
 			)
 		) {
 			return 'addfriend';
@@ -670,4 +675,32 @@ function appendNewComment(newCommentData) {
 	commenterInfo.appendChild(commentContent);
 
 	commentContainer.insertBefore(commenterInfo, commentContainer.firstChild);
+}
+
+async function postUpdate(post_id) {
+	const addAuthor = document.getElementById('addAuthor');
+
+	const updateButton = document.createElement('div');
+	updateButton.classList.add('hover:bg-slate-200/50', 'px-2', 'py-1');
+	updateButton.innerText = 'Update';
+	const deleteButton = document.createElement('div');
+	deleteButton.classList.add('hover:bg-slate-200/50', 'px-2', 'py-1');
+	deleteButton.innerText = 'Delete';
+
+	addAuthor.appendChild(updateButton);
+	addAuthor.appendChild(deleteButton);
+
+	updatePost(post_id);
+}
+
+function updatePost(post_id) {
+	const addAuthor = document.getElementById('addAuthor');
+
+	addAuthor.addEventListener('click', function (event) {
+		if (event.target.innerText === 'Update') {
+			updateThePost(post_id).then(window.location.reload());
+		} else if (event.target.innerText === 'Delete') {
+			deleteThePost(post_id).then(window.location.reload());
+		}
+	});
 }
