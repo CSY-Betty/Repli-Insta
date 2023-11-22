@@ -9,6 +9,8 @@ django-allauth = "*"
 djangorestframework = "*"
 django-cors-headers = "*"
 pillow = "*"
+mysqlclient = "*"
+python-dotenv = "*"
 
 [dev-packages]
 
