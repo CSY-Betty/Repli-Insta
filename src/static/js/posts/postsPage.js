@@ -1,9 +1,10 @@
-// import { postComment } from './comment.js';
 import { getPosts, getPostData, getCommentsData } from './datafetch.js';
 import { checkLogin } from '../auth/logStatus.js';
+import { addFriend } from '../profiles/addFriend.js';
+import { getRelationData } from '../profiles/datafetch.js';
+import { likePost } from './likePost.js';
 
-async function renderCenterPosts() {
-	const postsData = await getPosts();
+async function createPostsContainer(postsData) {
 	const postsContainer = document.getElementById('postsContainer');
 	postsContainer.classList.add(
 		'ml-96',
@@ -42,7 +43,7 @@ async function renderCenterPosts() {
 	}
 }
 
-function createPostContainer(postData) {
+async function createPostContainer(postData) {
 	postModal.classList.add(
 		'hidden',
 		'flex',
@@ -67,6 +68,7 @@ function createPostContainer(postData) {
 		'flex',
 		'flex-row'
 	);
+	postContainer.id = 'postContainer';
 
 	const postImage = document.createElement('img');
 	postImage.src = postData.image;
@@ -113,8 +115,9 @@ function createPostContainer(postData) {
 	authorName.innerText = postData.author_profile.first_name;
 
 	const addAuthor = document.createElement('div');
+	addAuthor.id = 'addAuthor';
 	addAuthor.classList.add('text-rose-400', 'cursor-pointer', 'ml-auto');
-	addAuthor.innerText = 'Add Friend';
+	addAuthor.dataset.authorId = postData.author;
 
 	const postContent = document.createElement('div');
 	postContent.classList.add(
@@ -130,6 +133,7 @@ function createPostContainer(postData) {
 
 	authorInfo.appendChild(authorAvatar);
 	authorInfo.appendChild(authorName);
+
 	authorInfo.appendChild(addAuthor);
 
 	postInfo.appendChild(authorInfo);
@@ -283,7 +287,13 @@ function createCommentForm(post_id) {
 	postInfo.appendChild(commentForm);
 }
 
-async function showPost() {
+function renderPosts() {
+	getPosts().then((postsData) => {
+		createPostsContainer(postsData);
+	});
+}
+
+async function renderPost() {
 	const postsContainer = document.getElementById('postsContainer');
 	const postModal = document.getElementById('postModal');
 
@@ -292,6 +302,8 @@ async function showPost() {
 		const post_id = clickImage?.getAttribute('data-post-id');
 		if (post_id) {
 			const postData = await getPostData(post_id);
+			const user = await checkLogin();
+
 			postModal.innerHTML = ''; // 清空内容
 
 			await createPostContainer(postData[0]);
@@ -305,6 +317,9 @@ async function showPost() {
 
 			sendComment(post_id);
 
+			friendUpdate(user.user_id, postData[0]);
+			likePost(postData[0]);
+
 			postModal.addEventListener('click', (event) => {
 				if (event.target === postModal) {
 					postModal.classList.add('hidden');
@@ -313,6 +328,11 @@ async function showPost() {
 		}
 	});
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+	renderPosts();
+	renderPost();
+});
 
 function sendComment(post_id) {
 	const commentForm = document.querySelector('.commentForm');
@@ -326,12 +346,62 @@ function sendComment(post_id) {
 	});
 }
 
-document.addEventListener('DOMContentLoaded', function () {
-	renderCenterPosts();
-	showPost();
-	const renderComplete = new Event('renderComplete');
-	document.dispatchEvent(renderComplete);
-});
+async function friendUpdate(user, postData) {
+	const relation = await checkRelation(user, postData);
+
+	const addAuthor = document.getElementById('addAuthor');
+	if (relation === 'myself' || relation === null) {
+		addAuthor.innerText = '';
+	} else if (relation === 'wait') {
+		addAuthor.innerText = 'Wait approve';
+		addAuthor.classList.remove('cursor-pointer');
+	} else if (relation === 'addfriend') {
+		addAuthor.innerText = 'Add friend';
+	} else {
+		const acceptButton = document.createElement('div');
+		acceptButton.classList.add('hover:bg-slate-200/50', 'px-2', 'py-1');
+		acceptButton.innerText = 'Accept';
+		const rejectButton = document.createElement('div');
+		rejectButton.classList.add('hover:bg-slate-200/50', 'px-2', 'py-1');
+		rejectButton.innerText = 'Reject';
+
+		addAuthor.appendChild(acceptButton);
+		addAuthor.appendChild(rejectButton);
+	}
+}
+
+async function checkRelation(user_id, postData) {
+	const friendships = await getRelationData();
+
+	if (user_id != 999) {
+		const status = getStatus(user_id, postData.author, friendships);
+		return status;
+	} else {
+		return null;
+	}
+
+	function getStatus(user_id, author, relationships) {
+		const relationship = relationships.find(
+			(item) =>
+				(item.sender === user_id && item.receiver === author) ||
+				(item.sender === author && item.receiver === user_id)
+		);
+
+		if (relationship) {
+			return user_id === relationship.sender ? 'wait' : 'check';
+		}
+
+		if (
+			!relationships.some(
+				(item) => item.sender === user_id || item.receiver === user_id
+			)
+		) {
+			return 'addfriend';
+		}
+
+		return 'myself';
+	}
+}
 
 function timeCalculate(time) {
 	const postDate = new Date(time);
