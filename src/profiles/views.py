@@ -9,6 +9,9 @@ from .serializers import (
     ProfilePostSerializer,
     RelationshipSerializer,
 )
+from posts.models import Post
+
+from posts.serializers import PostSerializer
 from rest_framework.response import Response
 from rest_framework.renderers import JSONOpenAPIRenderer
 from rest_framework.generics import (

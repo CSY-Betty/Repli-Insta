@@ -2,14 +2,21 @@
 {% load static %}
 
 {% block content %}
-<div id="postsContainer"></div>
+<div id="postModal">
+</div>
 
-    
+
+
+<div id="postsContainer">   
+   
+</div>
+
 {% endblock content %}
 
 
 
+
 {% block scripts %}
-<script type="module" src="{% static 'js/profiles/likedPosts.js' %}"></script>
+<script type="module" src="{% static 'js/profiles/likedPostsPage.js' %}"></script>
 <script type="module" src="{% static 'js/posts/likePost.js' %}"></script>
 {% endblock %}

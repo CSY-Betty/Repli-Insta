@@ -1,24 +1,23 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block left %}
+{% block content %}
+
+<div id="postModal">
+</div>
 <div id="profileInfo">
   
 </div>
-{% endblock left %}
 		
-{% block center %}
-<div id="postsInfo">
+<div id="postsContainer">
    
 </div>
-{% endblock center %}
+{% endblock content %}
 
-{% block right %}
-{% endblock right %}
 
 
 
 {% block scripts %}
-<script type="module" src="{% static 'js/profiles/profile.js' %}"></script>
+<script type="module" src="{% static 'js/profiles/profilePage.js' %}"></script>
 
 {% endblock %}

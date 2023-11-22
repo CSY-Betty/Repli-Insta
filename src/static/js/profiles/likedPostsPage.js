@@ -1,8 +1,20 @@
-import { getPosts, getPostData, getCommentsData } from './datafetch.js';
+import { getPostData, getCommentsData } from '../posts/datafetch.js';
 import { checkLogin } from '../auth/logStatus.js';
-import { addFriend } from '../profiles/addFriend.js';
-import { getRelationData } from '../profiles/datafetch.js';
-import { likePost } from './likePost.js';
+import { likePost } from '../posts/likePost.js';
+import { getRelationData } from './datafetch.js';
+
+function getLikedPosts() {
+	const url = '/posts/post/userliked/';
+	const originUrl = window.location.origin;
+	const likedPostsUrl = `${originUrl}${url}`;
+
+	return fetch(likedPostsUrl, {
+		method: 'GET',
+	})
+		.then((response) => response.json())
+		.then((data) => data)
+		.catch((error) => console.error('Error:', error));
+}
 
 async function createPostsContainer(postsData) {
 	const postsContainer = document.getElementById('postsContainer');
@@ -287,10 +299,9 @@ function createCommentForm(post_id) {
 	postInfo.appendChild(commentForm);
 }
 
-function renderPosts() {
-	getPosts().then((postsData) => {
-		createPostsContainer(postsData);
-	});
+async function renderPosts() {
+	const postsData = await getLikedPosts();
+	createPostsContainer(postsData);
 }
 
 async function renderPost() {
@@ -332,7 +343,45 @@ async function renderPost() {
 document.addEventListener('DOMContentLoaded', function () {
 	renderPosts();
 	renderPost();
+	const renderComplete = new Event('renderComplete');
+	document.dispatchEvent(renderComplete);
 });
+
+function timeCalculate(time) {
+	const postDate = new Date(time);
+	const now = new Date();
+
+	const timeDiff = now - postDate;
+
+	const daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+	const hoursDiff = Math.floor(
+		(timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+	);
+
+	if (daysDiff > 0) {
+		return `${daysDiff} days ${hoursDiff} hours ago`;
+	} else {
+		return `${hoursDiff} hours ago`;
+	}
+}
+
+function checkPostLikeStatus(post_id) {
+	const url = `/posts/post/like/${post_id}/`;
+	const originUrl = window.location.origin;
+	const checkUrl = `${originUrl}${url}`;
+
+	return fetch(checkUrl, {
+		method: 'GET',
+		headers: { 'Content-Type': 'application/json' },
+	})
+		.then((response) => response.json())
+		.then((data) => {
+			return data;
+		})
+		.catch((error) => {
+			console.error(error.message);
+		});
+}
 
 function sendComment(post_id) {
 	const commentForm = document.querySelector('.commentForm');
@@ -401,42 +450,6 @@ async function checkRelation(user_id, postData) {
 
 		return 'myself';
 	}
-}
-
-function timeCalculate(time) {
-	const postDate = new Date(time);
-	const now = new Date();
-
-	const timeDiff = now - postDate;
-
-	const daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-	const hoursDiff = Math.floor(
-		(timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-	);
-
-	if (daysDiff > 0) {
-		return `${daysDiff} days ${hoursDiff} hours ago`;
-	} else {
-		return `${hoursDiff} hours ago`;
-	}
-}
-
-function checkPostLikeStatus(post_id) {
-	const url = `/posts/post/like/${post_id}/`;
-	const originUrl = window.location.origin;
-	const checkUrl = `${originUrl}${url}`;
-
-	return fetch(checkUrl, {
-		method: 'GET',
-		headers: { 'Content-Type': 'application/json' },
-	})
-		.then((response) => response.json())
-		.then((data) => {
-			return data;
-		})
-		.catch((error) => {
-			console.error(error.message);
-		});
 }
 
 function postComment(post_id) {

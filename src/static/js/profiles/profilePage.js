@@ -1,10 +1,142 @@
-import { getPosts, getPostData, getCommentsData } from './datafetch.js';
 import { checkLogin } from '../auth/logStatus.js';
-import { addFriend } from '../profiles/addFriend.js';
-import { getRelationData } from '../profiles/datafetch.js';
-import { likePost } from './likePost.js';
+import { getRelationData } from './datafetch.js';
+import { addFriend, accept, reject } from './addFriend.js';
+import { getPostData } from '../posts/datafetch.js';
 
-async function createPostsContainer(postsData) {
+import { getCommentsData } from '../posts/datafetch.js';
+
+import { likePost } from '../posts/likePost.js';
+
+function getProfile() {
+	const currentUrl = window.location.href;
+	const urlParts = currentUrl.split('/');
+	const lastPart = urlParts[urlParts.length - 2];
+	const profilesPart = urlParts
+		.slice(0, urlParts.indexOf('profiles') + 1)
+		.join('/');
+	const url = profilesPart + `/profile/?slug=${lastPart}`;
+
+	return fetch(url, {
+		method: 'GET',
+		headers: { 'Content-Type': 'application/json' },
+	})
+		.then((response) => response.json())
+		.catch((error) => console.error('Error:', error));
+}
+
+async function renderProfileInfo() {
+	const profileData = await getProfile();
+	const user = await checkLogin();
+	const profileInfo = document.getElementById('profileInfo');
+	profileInfo.classList.add(
+		'flex',
+		'flex-row',
+		'mr-48',
+		'ml-96',
+		'mt-6',
+		'border-b',
+		'py-4',
+		'pl-16'
+	);
+
+	const profileAvatar = document.createElement('img');
+	profileAvatar.classList.add(
+		'h-36',
+		'w-36',
+		'rounded-full',
+		'ring-2',
+		'ring-white'
+	);
+	profileAvatar.src = profileData.avatar;
+
+	const profileDetail = document.createElement('div');
+	profileDetail.classList.add('flex', 'flex-col', 'my-4', 'px-12');
+
+	const profileName = document.createElement('div');
+	profileName.innerText =
+		profileData.first_name + ' ' + profileData.last_name;
+
+	const profileBio = document.createElement('div');
+	profileBio.classList.add('my-6');
+	profileBio.innerText = profileData.bio;
+
+	const otherInfo = document.createElement('div');
+
+	if (user.user_id != profileData.user) {
+		const friendButton = document.createElement('div');
+		friendButton.id = 'friendButton';
+		friendButton.classList.add(
+			'bg-white',
+			'hover:bg-gray-100',
+			'text-gray-800',
+			'font-semibold',
+			'py-2',
+			'px-4',
+			'border-b',
+			'border-gray-400',
+			'rounded',
+			'shadow',
+			'cursor-pointer',
+			'my-4'
+		);
+		const relationData = await getRelationData();
+		const relation = await getFriendshipStatus(
+			relationData,
+			profileData.user
+		);
+		if (relation != 'check') {
+			friendButton.textContent = relation;
+		} else {
+			friendButton.classList.value = '';
+			const acceptButton = document.createElement('div');
+			acceptButton.classList.add(
+				'bg-green-500',
+				'hover:bg-green-700',
+				'text-white',
+				'font-bold',
+				'py-2',
+				'px-4',
+				'rounded',
+				'cursor-pointer'
+			);
+			acceptButton.textContent = 'Accept';
+
+			const rejectButton = document.createElement('div');
+			rejectButton.classList.add(
+				'bg-red-400',
+				'hover:bg-red-700',
+				'text-white',
+				'font-bold',
+				'py-2',
+				'px-4',
+				'rounded',
+				'cursor-pointer',
+				'my-4'
+			);
+			rejectButton.textContent = 'Reject';
+
+			friendButton.appendChild(acceptButton);
+			friendButton.appendChild(rejectButton);
+
+			otherInfo.appendChild(friendButton);
+		}
+	}
+
+	profileDetail.appendChild(profileName);
+	profileDetail.appendChild(profileBio);
+
+	profileInfo.appendChild(profileAvatar);
+	profileInfo.appendChild(profileDetail);
+	profileInfo.appendChild(otherInfo);
+}
+
+async function renderPosts() {
+	const profileData = await getProfile();
+	const posts = profileData.posts;
+	createPostsContainer(posts);
+}
+
+async function createPostsContainer(posts) {
 	const postsContainer = document.getElementById('postsContainer');
 	postsContainer.classList.add(
 		'ml-96',
@@ -15,7 +147,7 @@ async function createPostsContainer(postsData) {
 		'grid-cols-3'
 	);
 
-	for (const post of postsData) {
+	for (const post of posts) {
 		const postContainer = document.createElement('div');
 		postContainer.classList.add(
 			'rounded',
@@ -35,11 +167,99 @@ async function createPostsContainer(postsData) {
 		}
 
 		postImage.alt = 'No Image';
-		postImage.dataset.postId = post.post_id;
+		postImage.dataset.postId = post.id;
 
 		postContainer.appendChild(postImage);
 
 		postsContainer.appendChild(postContainer);
+	}
+}
+
+async function renderPost() {
+	const postsContainer = document.getElementById('postsContainer');
+	const postModal = document.getElementById('postModal');
+
+	postsContainer.addEventListener('click', async (event) => {
+		const clickImage = event.target.closest('.post_image');
+		const post_id = clickImage?.getAttribute('data-post-id');
+		if (post_id) {
+			const postData = await getPostData(post_id);
+			const user = await checkLogin();
+
+			postModal.innerHTML = ''; // 清空内容
+
+			await createPostContainer(postData[0]);
+			postModal.classList.remove('hidden');
+
+			const commentsData = await getCommentsData(post_id);
+			await createCommentContainer(commentsData);
+
+			await createPostLikeContainer(postData[0]);
+			await createCommentForm(post_id);
+
+			sendComment(post_id);
+
+			friendUpdate(user.user_id, postData[0]);
+			likePost(postData[0]);
+
+			postModal.addEventListener('click', (event) => {
+				if (event.target === postModal) {
+					postModal.classList.add('hidden');
+				}
+			});
+		}
+	});
+}
+
+// async function friendButtonClick() {
+// 	const friendButton = document.getElementById('friendButton');
+// 	const profileData = await getProfile();
+// 	const profileId = profileData.user;
+
+// 	friendButton.addEventListener('click', function (event) {
+// 		const buttonValue = event.target.textContent;
+// 		if (buttonValue === 'Friends') {
+// 			const url = '/profiles/profile/friends/';
+// 			const originUrl = window.location.origin;
+// 			const friendsUrl = `${originUrl}${url}`;
+// 			window.location.href = friendsUrl;
+// 		}
+
+// 		if (buttonValue === 'Add friend') {
+// 			addFriend(profileId).then(() => window.location.reload());
+// 		}
+
+// 		if (buttonValue === 'Accept') {
+// 			accept(profileId).then(() => window.location.reload());
+// 		}
+
+// 		if (buttonValue === 'Reject') {
+// 			reject(profileId).then(() => window.location.reload());
+// 		}
+// 	});
+// }
+
+document.addEventListener('DOMContentLoaded', function () {
+	renderProfileInfo();
+	renderPosts();
+	renderPost();
+});
+
+function getFriendshipStatus(relationData, someone_id) {
+	const relation = relationData.find(
+		(rel) => rel.sender === someone_id || rel.receiver === someone_id
+	);
+
+	if (!relation) {
+		return 'Add friend';
+	}
+
+	if (relation.status === 'accepted') {
+		return 'Hi! Friend';
+	} else if (relation.status === 'send' && relation.receiver === someone_id) {
+		return 'Waiting Approved';
+	} else if (relation.status === 'send' && relation.sender === someone_id) {
+		return 'check';
 	}
 }
 
@@ -234,6 +454,42 @@ async function createPostLikeContainer(postData) {
 	postInfo.appendChild(postLikeContainer);
 }
 
+function timeCalculate(time) {
+	const postDate = new Date(time);
+	const now = new Date();
+
+	const timeDiff = now - postDate;
+
+	const daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+	const hoursDiff = Math.floor(
+		(timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+	);
+
+	if (daysDiff > 0) {
+		return `${daysDiff} days ${hoursDiff} hours ago`;
+	} else {
+		return `${hoursDiff} hours ago`;
+	}
+}
+
+function checkPostLikeStatus(post_id) {
+	const url = `/posts/post/like/${post_id}/`;
+	const originUrl = window.location.origin;
+	const checkUrl = `${originUrl}${url}`;
+
+	return fetch(checkUrl, {
+		method: 'GET',
+		headers: { 'Content-Type': 'application/json' },
+	})
+		.then((response) => response.json())
+		.then((data) => {
+			return data;
+		})
+		.catch((error) => {
+			console.error(error.message);
+		});
+}
+
 function createCommentForm(post_id) {
 	const postInfo = document.getElementById('postInfo');
 
@@ -286,53 +542,6 @@ function createCommentForm(post_id) {
 
 	postInfo.appendChild(commentForm);
 }
-
-function renderPosts() {
-	getPosts().then((postsData) => {
-		createPostsContainer(postsData);
-	});
-}
-
-async function renderPost() {
-	const postsContainer = document.getElementById('postsContainer');
-	const postModal = document.getElementById('postModal');
-
-	postsContainer.addEventListener('click', async (event) => {
-		const clickImage = event.target.closest('.post_image');
-		const post_id = clickImage?.getAttribute('data-post-id');
-		if (post_id) {
-			const postData = await getPostData(post_id);
-			const user = await checkLogin();
-
-			postModal.innerHTML = ''; // 清空内容
-
-			await createPostContainer(postData[0]);
-			postModal.classList.remove('hidden');
-
-			const commentsData = await getCommentsData(post_id);
-			await createCommentContainer(commentsData);
-
-			await createPostLikeContainer(postData[0]);
-			await createCommentForm(post_id);
-
-			sendComment(post_id);
-
-			friendUpdate(user.user_id, postData[0]);
-			likePost(postData[0]);
-
-			postModal.addEventListener('click', (event) => {
-				if (event.target === postModal) {
-					postModal.classList.add('hidden');
-				}
-			});
-		}
-	});
-}
-
-document.addEventListener('DOMContentLoaded', function () {
-	renderPosts();
-	renderPost();
-});
 
 function sendComment(post_id) {
 	const commentForm = document.querySelector('.commentForm');
@@ -401,42 +610,6 @@ async function checkRelation(user_id, postData) {
 
 		return 'myself';
 	}
-}
-
-function timeCalculate(time) {
-	const postDate = new Date(time);
-	const now = new Date();
-
-	const timeDiff = now - postDate;
-
-	const daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-	const hoursDiff = Math.floor(
-		(timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-	);
-
-	if (daysDiff > 0) {
-		return `${daysDiff} days ${hoursDiff} hours ago`;
-	} else {
-		return `${hoursDiff} hours ago`;
-	}
-}
-
-function checkPostLikeStatus(post_id) {
-	const url = `/posts/post/like/${post_id}/`;
-	const originUrl = window.location.origin;
-	const checkUrl = `${originUrl}${url}`;
-
-	return fetch(checkUrl, {
-		method: 'GET',
-		headers: { 'Content-Type': 'application/json' },
-	})
-		.then((response) => response.json())
-		.then((data) => {
-			return data;
-		})
-		.catch((error) => {
-			console.error(error.message);
-		});
 }
 
 function postComment(post_id) {
