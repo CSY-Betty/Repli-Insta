@@ -168,3 +168,34 @@ class RejectRelationshipView(DestroyAPIView, LoginRequiredMixin):
 
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
+
+
+class RemoveRelationshipView(DestroyAPIView, LoginRequiredMixin):
+    serializer_class = RelationshipSerializer
+    renderer_classes = [JSONOpenAPIRenderer]
+    queryset = Relationship.objects.filter(status="accepted")
+    lookup_field = "pk"
+
+    def delete(self, request, *args, **kwargs):
+        user_profile = request.user.profile
+        counterpart_profile_id = request.data.get("counterpart_profile_id")
+
+        queryset = self.get_queryset().filter(
+            (Q(sender=user_profile) | Q(receiver=user_profile)),
+            (
+                Q(sender_id=counterpart_profile_id)
+                | Q(receiver_id=counterpart_profile_id)
+            ),
+        )
+
+        if queryset.exists():
+            # 使用 DestroyAPIView 的 destroy 方法
+            queryset.delete()
+            return Response(
+                {"message": "Friend removed successfully"}, status=status.HTTP_200_OK
+            )
+        else:
+            return Response(
+                {"message": "Friend relationship not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )

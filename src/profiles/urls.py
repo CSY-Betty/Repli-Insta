@@ -12,6 +12,7 @@ from .views import (
     CreateRelationView,
     AcceptRelationView,
     RejectRelationshipView,
+    RemoveRelationshipView,
 )
 
 app_name = "profiles"
@@ -31,6 +32,11 @@ urlpatterns = [
         "profile/friends/reject/<int:sender__id>",
         RejectRelationshipView.as_view(),
         name="reject-friend",
+    ),
+    path(
+        "profile/friends/remove/<int:pk>/",
+        RemoveRelationshipView.as_view(),
+        name="remove-friend",
     ),
     path(
         "profile/likedposts/",

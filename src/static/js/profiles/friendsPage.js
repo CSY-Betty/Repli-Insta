@@ -1,6 +1,6 @@
 import { checkLogin } from '../auth/logStatus.js';
 import { getRelationData } from './datafetch.js';
-import { accept, reject } from './addFriend.js';
+import { accept, reject, remove } from './addFriend.js';
 
 async function renderFriendRelate(relation) {
 	const userId = await checkLogin();
@@ -128,6 +128,32 @@ async function renderFriendList() {
 				friendStatus.appendChild(acceptButton);
 				friendStatus.appendChild(rejectButton);
 			}
+		} else if (relation.status === 'accepted') {
+			friendStatus = document.createElement('div');
+			friendStatus.classList.add(
+				'friendStatus',
+				'basis-1/5',
+				'flex',
+				'flex-col',
+				'gap-2'
+			);
+			const removeFriend = document.createElement('div');
+			removeFriend.innerText = 'Remove';
+			removeFriend.classList.add(
+				'RemoveFriend',
+				'bg-slate-300',
+				'text-white',
+				'font-bold',
+				'py-2',
+				'px-4',
+				'rounded',
+				'text-center',
+				'cursor-pointer'
+			);
+
+			removeFriend.dataset.profile = relation.counterpart_profile.user;
+
+			friendStatus.appendChild(removeFriend);
 		}
 
 		friendInfo.appendChild(friendName);
@@ -163,6 +189,9 @@ function updateFriend() {
 			} else if (event.target.classList.contains('RejectButton')) {
 				reject(profileId).then(window.location.reload());
 			}
+		} else if (event.target.matches('.RemoveFriend')) {
+			const profileId = event.target.getAttribute('data-profile');
+			remove(profileId).then(window.location.reload());
 		}
 	});
 }

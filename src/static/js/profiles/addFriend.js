@@ -89,3 +89,32 @@ export async function reject(profileId) {
 		.then((data) => console.log('sucess: ', data))
 		.catch(console.error());
 }
+
+export async function remove(profileId) {
+	console.log(profileId);
+	const userId = await checkLogin();
+
+	const originUrl = window.location.origin;
+	const url = '/profiles/profile/friends/remove/';
+
+	const removeFriendUrl = `${originUrl}${url}${profileId}/`;
+
+	const csrfToken = document.getElementsByName('csrfmiddlewaretoken')[0]
+		.value;
+
+	const data = {
+		counterpart_profile_id: profileId,
+	};
+
+	fetch(removeFriendUrl, {
+		method: 'DELETE',
+		headers: {
+			'Content-Type': 'application/json',
+			'X-CSRFToken': csrfToken,
+		},
+		body: JSON.stringify(data),
+	})
+		.then((response) => response.json())
+		.then((data) => console.log('sucess: ', data))
+		.catch(console.error());
+}

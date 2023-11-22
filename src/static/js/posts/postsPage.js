@@ -319,6 +319,7 @@ async function renderPost() {
 
 			friendUpdate(user.user_id, postData[0]);
 			likePost(postData[0]);
+			updateFriend();
 
 			postModal.addEventListener('click', (event) => {
 				if (event.target === postModal) {
@@ -348,7 +349,6 @@ function sendComment(post_id) {
 
 async function friendUpdate(user, postData) {
 	const relation = await checkRelation(user, postData);
-
 	const addAuthor = document.getElementById('addAuthor');
 	if (relation === 'myself' || relation === null) {
 		addAuthor.innerText = '';
@@ -357,13 +357,17 @@ async function friendUpdate(user, postData) {
 		addAuthor.classList.remove('cursor-pointer');
 	} else if (relation === 'addfriend') {
 		addAuthor.innerText = 'Add friend';
+		addAuthor.dataset.authorId = postData.author;
 	} else {
 		const acceptButton = document.createElement('div');
 		acceptButton.classList.add('hover:bg-slate-200/50', 'px-2', 'py-1');
 		acceptButton.innerText = 'Accept';
+		acceptButton.dataset.authorId = postData.author;
+
 		const rejectButton = document.createElement('div');
 		rejectButton.classList.add('hover:bg-slate-200/50', 'px-2', 'py-1');
 		rejectButton.innerText = 'Reject';
+		rejectButton.dataset.authorId = postData.author;
 
 		addAuthor.appendChild(acceptButton);
 		addAuthor.appendChild(rejectButton);
@@ -393,7 +397,7 @@ async function checkRelation(user_id, postData) {
 
 		if (
 			!relationships.some(
-				(item) => item.sender === user_id || item.receiver === user_id
+				(item) => item.sender === author || item.receiver === author
 			)
 		) {
 			return 'addfriend';
@@ -498,4 +502,31 @@ function appendNewComment(newCommentData) {
 	commenterInfo.appendChild(commentContent);
 
 	commentContainer.insertBefore(commenterInfo, commentContainer.firstChild);
+}
+
+function updateFriend() {
+	const addAuthor = document.getElementById('addAuthor');
+
+	addAuthor.addEventListener('click', function (event) {
+		if (
+			event.target.innerText === 'Accept' ||
+			event.target.innerText === 'Reject'
+		) {
+			const profileId = event.target.getAttribute('data-author-id');
+
+			if (event.target.innerText === 'Accept') {
+				console.log('hi');
+				accept(profileId).then(window.location.reload());
+			} else if (eevent.target.innerText === 'Reject') {
+				reject(profileId).then(window.location.reload());
+			}
+		} else if (event.target.innerText === 'Remove') {
+			const profileId = event.target.getAttribute('data-author-id');
+			remove(profileId).then(window.location.reload());
+		} else if (event.target.innerText === 'Add friend') {
+			console.log('hi');
+			const profileId = event.target.getAttribute('data-author-id');
+			addFriend(profileId).then(window.location.reload());
+		}
+	});
 }
