@@ -1,6 +1,6 @@
 import { checkLogin } from '../auth/logStatus.js';
 
-export async function updateThePost(post_id) {
+export async function updateThePost(post_id, formData) {
 	const userId = await checkLogin();
 
 	const originUrl = window.location.origin;
@@ -11,19 +11,12 @@ export async function updateThePost(post_id) {
 	const csrfToken = document.getElementsByName('csrfmiddlewaretoken')[0]
 		.value;
 
-	const data = {
-		sender: profileId,
-		receiver: userId.user_id,
-		status: 'send',
-	};
-
 	return fetch(acceptFriendUrl, {
 		method: 'PUT',
 		headers: {
-			'Content-Type': 'application/json',
 			'X-CSRFToken': csrfToken,
 		},
-		body: JSON.stringify(data),
+		body: formData,
 	})
 		.then((response) => response.json())
 		.then((data) => console.log('sucess: ', data))

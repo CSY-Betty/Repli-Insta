@@ -698,9 +698,23 @@ function updatePost(post_id) {
 
 	addAuthor.addEventListener('click', function (event) {
 		if (event.target.innerText === 'Update') {
-			updateThePost(post_id).then(window.location.reload());
+			const updateForm = document.getElementById('updateForm');
+			updateForm.classList.remove('hidden');
+			submitUpdateForm(post_id);
 		} else if (event.target.innerText === 'Delete') {
 			deleteThePost(post_id).then(window.location.reload());
 		}
+	});
+}
+
+function submitUpdateForm(post_id) {
+	const updateForm = document.getElementById('updateForm');
+	updateForm.style.zIndex = '60';
+	const updateFormContainer = document.getElementById('updateFormContainer');
+
+	updateFormContainer.addEventListener('submit', function (event) {
+		event.preventDefault();
+		const formData = new FormData(updateFormContainer);
+		updateThePost(post_id, formData).then(window.location.reload());
 	});
 }
