@@ -1,12 +1,6 @@
-from django.shortcuts import render, redirect
-from django.urls import reverse_lazy
+from django.shortcuts import render
 from .models import Post, Like, Comment
-from profiles.models import Profile
-from .forms import PostModelForm, CommentModelForm
-from django.views.generic import UpdateView, DeleteView
-from django.contrib import messages
 from django.http import JsonResponse
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.serializers import serialize
 import json
@@ -230,95 +224,3 @@ class PostDeleteView(DestroyAPIView, LoginRequiredMixin):
             return Response(
                 {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-
-
-# @login_required
-# def like_unlike_post(request):
-#     user = request.user
-#     if request.method == "POST":
-#         post_id = request.POST.get("post_id")
-#         post_obj = Post.objects.get(id=post_id)
-#         profile = Profile.objects.get(user=user)
-
-#         if profile in post_obj.liked.all():
-#             post_obj.liked.remove(profile)
-#         else:
-#             post_obj.liked.add(profile)
-
-#         like, created = Like.objects.get_or_create(user=profile, post_id=post_id)
-
-#         if not created:
-#             if like.value == "Like":
-#                 like.value = "Unlike"
-#             else:
-#                 like.value == "Like"
-#         else:
-#             like.value = "Like"
-
-#             post_obj.save()
-#             like.save()
-
-#         data = {"value": like.value, "likes": post_obj.liked.all().count()}
-
-#         return JsonResponse(data, safe=False)
-
-#     return redirect("posts:main-post-view")
-
-
-# class PostDeleteView(LoginRequiredMixin, DeleteView):
-#     model = Post
-#     template_name = "posts/confirm_del.html"
-#     success_url = reverse_lazy("posts:main-post-view")
-#     # success_url = "/posts/"
-
-#     def get_delete_post(self, *args, **kwargs):
-#         pk = self.kwargs.get("pk")
-#         post = Post.objects.get(pk=pk)
-
-#         if not post.author.user == self.request.user:
-#             messages.warning(self.request, "You need to be the author.")
-
-#         return post
-
-
-# class PostUpdateView(LoginRequiredMixin, UpdateView):
-#     form_class = PostModelForm
-#     model = Post
-#     template_name = "posts/update.html"
-#     success_url = reverse_lazy("posts:main-post-view")
-
-#     def form_valid(self, form):
-#         profile = Profile.objects.get(user=self.request.user)
-#         if form.instance.author == profile:
-#             return super().form_valid(form)
-#         else:
-#             form.add_error(None, "You need to be the author.")
-#             return super().form_invalid(form)
-
-
-# def get_comment(request):
-#     post_id = request.GET.get("post_id")
-#     post = Post.objects.get(id=post_id)
-#     comments = list(Comment.objects.filter(post=post))
-
-#     comment_list = []
-#     for comment in comments:
-#         comment_data = serialize("json", [comment], fields=("user", "body", "created"))
-#         comment_fields = json.loads(comment_data)[0]["fields"]
-
-#         commenter_instance = comment_fields["user"]
-#         commenter_profile = Profile.objects.get(id=commenter_instance)
-
-#         commenter_avatar = commenter_profile.avatar.url
-#         commenter = commenter_profile.user.username
-
-#         comment_info = {
-#             "content": comment_fields["body"],
-#             "commenter_avatar": commenter_avatar,
-#             "commenter": commenter,
-#             "comment_time": comment_fields["created"],
-#         }
-#         comment_list.append(comment_info)
-
-#     response_data = {"status": "success", "comments": comment_list}
-#     return JsonResponse(response_data)
