@@ -2,7 +2,10 @@ from django.shortcuts import render
 from .models import Post, Like, Comment
 from django.http import JsonResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 from django.core.serializers import serialize
+from django.utils.decorators import method_decorator
+from django.http import QueryDict
 import json
 from .serializers import (
     PostProfileSerializer,
@@ -18,11 +21,19 @@ from rest_framework.generics import (
     UpdateAPIView,
     ListCreateAPIView,
     DestroyAPIView,
+    get_object_or_404,
 )
 from rest_framework.response import Response
 from rest_framework.renderers import JSONOpenAPIRenderer
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.mixins import (
+    CreateModelMixin,
+    UpdateModelMixin,
+    DestroyModelMixin,
+    RetrieveModelMixin,
+)
+from rest_framework.views import APIView
 
 
 # Create your views here.
@@ -32,50 +43,50 @@ def posts(request):
     return render(request, "posts/posts.html")
 
 
-def get_post(request):
-    post_id = request.GET.get("post_id")
-    post = Post.objects.get(id=post_id)
+# def get_post(request):
+#     post_id = request.GET.get("post_id")
+#     post = Post.objects.get(id=post_id)
 
-    if post_id is not None:
-        try:
-            post = Post.objects.get(id=post_id)
-            post_data = serialize(
-                "json", [post], fields=("id", "content", "created", "image")
-            )
-            data_fields = json.loads(post_data)[0]["fields"]
-            post_id = json.loads(post_data)[0]["pk"]
+#     if post_id is not None:
+#         try:
+#             post = Post.objects.get(id=post_id)
+#             post_data = serialize(
+#                 "json", [post], fields=("id", "content", "created", "image")
+#             )
+#             data_fields = json.loads(post_data)[0]["fields"]
+#             post_id = json.loads(post_data)[0]["pk"]
 
-            profile = post.author
-            profile_data = serialize(
-                "json",
-                [
-                    profile,
-                ],
-                fields=("first_name", "last_name", "avatar"),
-            )
+#             profile = post.author
+#             profile_data = serialize(
+#                 "json",
+#                 [
+#                     profile,
+#                 ],
+#                 fields=("first_name", "last_name", "avatar"),
+#             )
 
-            profile_data_fields = json.loads(profile_data)[0]["fields"]
+#             profile_data_fields = json.loads(profile_data)[0]["fields"]
 
-            response_data = {
-                "status": "success",
-                "post": {
-                    "id": post_id,
-                    "content": data_fields["content"],
-                    "created": data_fields["created"],
-                    "image_url": data_fields["image"],
-                },
-                "profile": {
-                    "avatar": profile_data_fields["avatar"],
-                    "first_name": profile_data_fields["first_name"],
-                    "last_name": profile_data_fields["last_name"],
-                },
-            }
-        except Post.DoesNotExist:
-            response_data = {"status": "error", "message": "Post not found"}
-    else:
-        response_data = {"status": "error", "message": "Post ID not provided"}
+#             response_data = {
+#                 "status": "success",
+#                 "post": {
+#                     "id": post_id,
+#                     "content": data_fields["content"],
+#                     "created": data_fields["created"],
+#                     "image_url": data_fields["image"],
+#                 },
+#                 "profile": {
+#                     "avatar": profile_data_fields["avatar"],
+#                     "first_name": profile_data_fields["first_name"],
+#                     "last_name": profile_data_fields["last_name"],
+#                 },
+#             }
+#         except Post.DoesNotExist:
+#             response_data = {"status": "error", "message": "Post not found"}
+#     else:
+#         response_data = {"status": "error", "message": "Post ID not provided"}
 
-    return JsonResponse(response_data)
+#     return JsonResponse(response_data)
 
 
 class PostsListView(ListAPIView):
@@ -223,4 +234,151 @@ class PostDeleteView(DestroyAPIView, LoginRequiredMixin):
         except Exception as e:
             return Response(
                 {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+@method_decorator(login_required, name="post")
+@method_decorator(login_required, name="patch")
+@method_decorator(login_required, name="delete")
+class CustomPostView(UpdateModelMixin, CreateModelMixin, DestroyModelMixin, APIView):
+    serializer_class = PostSerializer
+    queryset = Post.objects.all()
+    lookup_field = "id"
+    renderer_classes = [JSONOpenAPIRenderer]
+
+    def get_object(self):
+        obj = get_object_or_404(Post, id=self.request.GET.get("id"))
+        return obj
+
+    def get_serializer(self, *args, **kwargs):
+        if self.request.method in ["PATCH", "POST"]:
+            kwargs["context"] = {"request": self.request}
+        return self.serializer_class(*args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        data = request.data
+        data["author"] = request.user.id
+        serializer = self.serializer_class(data=data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request, *args, **kwargs):
+        post_id = request.GET.get("id")
+        post = get_object_or_404(Post, id=post_id)
+
+        if post.author.id != request.user.id:
+            return Response(
+                {"message": "Unauthorized"}, status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        serializer = self.serializer_class(post, data=request.data, partial=True)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, *args, **kwargs):
+        post_id = request.GET.get("id")
+        post = get_object_or_404(Post, id=post_id)
+
+        if post.author.id != request.user.id:
+            return Response(
+                {"message": "Unauthorized"}, status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        self.destroy(request, *args, **kwargs)
+
+        return Response(
+            {"message": "Post deleted successfully"}, status=status.HTTP_200_OK
+        )
+
+    def get(self, request, *args, **kwargs):
+        post_id = request.GET.get("id")
+
+        if post_id:
+            try:
+                post = Post.objects.get(id=post_id)
+                serializer = self.serializer_class(post)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            except Post.DoesNotExist:
+                return Response(
+                    {"message": "Post not found"}, status=status.HTTP_404_NOT_FOUND
+                )
+
+        else:
+            queryset = Post.objects.all()
+            serializer = self.serializer_class(queryset, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@method_decorator(login_required, name="post")
+class CustomCommentView(ListCreateAPIView):
+    serializer_class = CommentSerializer
+    renderer_classes = [JSONOpenAPIRenderer]
+
+    def get_queryset(self):
+        post_id = self.request.GET.get("id")
+        return Comment.objects.filter(post__id=post_id)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+
+        if not queryset.exists():
+            return Response(
+                {"message": "There is no such post."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        serializer = self.get_serializer(queryset, many=True)
+
+        return Response(serializer.data)
+
+    def create(self, request, *args, **kwargs):
+        mutable_data = request.data.copy()
+        mutable_data["user"] = request.user.id
+        mutable_data["post"] = self.request.GET.get("id")
+
+        serializer = self.get_serializer(data=mutable_data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+@method_decorator(login_required, name="post")
+class CustomLikePostView(CreateAPIView):
+    serializer_class = LikePostSerializer
+    renderer_classes = [JSONOpenAPIRenderer]
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        post_id = self.request.GET.get("id")
+        user_profile = request.user.profile
+        like_data = {"user": user_profile.id, "post": post_id, "value": True}
+
+        existing_like = Like.objects.filter(**like_data).first()
+
+        if existing_like:
+            existing_like.delete()
+
+            post = Post.objects.get(id=post_id)
+            post.liked.remove(user_profile)
+            return Response(
+                {"message": "Like removed successfully."}, status=status.HTTP_200_OK
+            )
+        else:
+            serializer = self.get_serializer(data=like_data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            post = Post.objects.get(id=post_id)
+            post.liked.add(user_profile)
+            headers = self.get_success_headers(serializer.data)
+            return Response(
+                serializer.data, status=status.HTTP_201_CREATED, headers=headers
             )

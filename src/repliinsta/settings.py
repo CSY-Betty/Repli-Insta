@@ -58,6 +58,8 @@ INSTALLED_APPS = [
     "rest_framework",
 ]
 
+LOGIN_URL = "/accounts/login"
+
 LOGIN_REDIRECT_URL = "/posts"
 
 MIDDLEWARE = [

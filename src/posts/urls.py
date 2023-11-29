@@ -10,6 +10,9 @@ from .views import (
     CreatePostView,
     LikePostView,
     UserLikedPostsView,
+    CustomPostView,
+    CustomCommentView,
+    CustomLikePostView,
 )
 
 app_name = "posts"
@@ -26,4 +29,7 @@ urlpatterns = [
     path("comment/create/", CreateCommentView.as_view(), name="create-comment"),
     path("post/like/<int:post_id>/", LikePostView.as_view(), name="like-post"),
     path("post/userliked/", UserLikedPostsView.as_view(), name="user-liked-posts"),
+    path("test/", CustomPostView.as_view(), name="test"),
+    path("testcomment/", CustomCommentView.as_view(), name="testcomment"),
+    path("testlike/", CustomLikePostView.as_view(), name="testlike"),
 ]
