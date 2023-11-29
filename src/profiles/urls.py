@@ -13,11 +13,23 @@ from .views import (
     AcceptRelationView,
     RejectRelationshipView,
     RemoveRelationshipView,
+    CustomProfileView,
+    CustomRelationView,
 )
 
 app_name = "profiles"
 
 urlpatterns = [
+    path(
+        "testfriends/",
+        CustomRelationView.as_view(),
+        name="testfriends",
+    ),
+    path(
+        "testprofile/",
+        CustomProfileView.as_view(),
+        name="testprofile",
+    ),
     path("", profiles, name="profiles"),
     path("all-profiles/", ProfileListView.as_view(), name="all-profiles-view"),
     path("profile/", ProfilePostView.as_view(), name="profile"),
