@@ -14,33 +14,33 @@
             
             {% if request.user.is_authenticated %}
 
-            <a href="{% url 'profiles:friends' %}" class="flex flex-row items-center px-2 py-4 rounded text-rose-400 hover:scale-105 hover:bg-slate-200/50 transition-transform duration-300 cursor-pointer mt-8"><img src="{% static 'img/following.png' %}"  class="h-8 w-8">
-                <p class="mx-4">Friends</p>
-            </a>
+                <a href="{% url 'profiles:friends' %}" class="flex flex-row items-center px-2 py-4 rounded text-rose-400 hover:scale-105 hover:bg-slate-200/50 transition-transform duration-300 cursor-pointer mt-8"><img src="{% static 'img/following.png' %}"  class="h-8 w-8">
+                    <p class="mx-4">Friends</p>
+                </a>
 
-            <a href="{% url 'profiles:liked-posts' %}" class="flex flex-row items-center px-2 py-4 rounded text-rose-400 hover:scale-105 hover:bg-slate-200/50 transition-transform duration-300 cursor-pointer mt-4"><img src="{% static 'img/unlike.png' %}"  class="h-8 w-8">
-                <p class="mx-4">Likes</p>
-            </a>
+                <a href="{% url 'profiles:liked-posts' %}" class="flex flex-row items-center px-2 py-4 rounded text-rose-400 hover:scale-105 hover:bg-slate-200/50 transition-transform duration-300 cursor-pointer mt-4"><img src="{% static 'img/unlike.png' %}"  class="h-8 w-8">
+                    <p class="mx-4">Likes</p>
+                </a>
 
-            <div id="postButton" class="flex flex-row items-center py-4 rounded text-rose-400 hover:scale-105 hover:bg-slate-200/50 transition-transform duration-300 cursor-pointer mt-4 px-2">
-                <img src="{% static 'img/add.svg' %}"  class="h-8 w-8">
-                <p class="mx-4">Create</p>
-            </div>
+                <div id="postButton" class="flex flex-row items-center py-4 rounded text-rose-400 hover:scale-105 hover:bg-slate-200/50 transition-transform duration-300 cursor-pointer mt-4 px-2">
+                    <img src="{% static 'img/add.svg' %}"  class="h-8 w-8">
+                    <p class="mx-4">Create</p>
+                </div>
 
-            <a href="{% url 'profiles:profile-view' slug=user_slug %}" class="flex flex-row items-center py-4 rounded text-rose-400 hover:scale-105 hover:bg-slate-200/50 transition-transform duration-300 cursor-pointer mt-4 px-2">
-                <img src="{{ user_avatar.url }}"  class="h-8 w-8 rounded-full">
-                <p class="mx-4">Profile</p>
-            </a>
-                
-            <a href="{% url 'profiles:profile-set' %}" class="flex flex-row items-center py-4 rounded text-rose-400 hover:scale-105 hover:bg-slate-200/50 transition-transform duration-300 cursor-pointer mt-auto px-2">
-                <img src="{% static 'img/user-gear.png' %}"  class="h-8 w-8">
-                <p class="mx-4">Setting</p>
-            </a>
+                <a href="{% url 'profiles:profile-view' slug=user_slug %}" class="flex flex-row items-center py-4 rounded text-rose-400 hover:scale-105 hover:bg-slate-200/50 transition-transform duration-300 cursor-pointer mt-4 px-2">
+                    <img src="{{ user_avatar.url }}"  class="h-8 w-8 rounded-full">
+                    <p class="mx-4">Profile</p>
+                </a>
+                    
+                <a href="{% url 'profiles:profile-set' %}" class="flex flex-row items-center py-4 rounded text-rose-400 hover:scale-105 hover:bg-slate-200/50 transition-transform duration-300 cursor-pointer mt-auto px-2">
+                    <img src="{% static 'img/user-gear.png' %}"  class="h-8 w-8">
+                    <p class="mx-4">Setting</p>
+                </a>
 
-            <a href="{% url 'account_logout' %}" class="flex flex-row items-center py-4 rounded text-rose-400 hover:scale-105 hover:bg-slate-200/50 transition-transform duration-300 cursor-pointer mb-2 px-2">
-                <img src="{% static 'img/signout.png' %}"  class="h-8 w-8">
-                <p class="mx-4">Sign out</p>
-            </a>
+                <a href="{% url 'account_logout' %}" class="flex flex-row items-center py-4 rounded text-rose-400 hover:scale-105 hover:bg-slate-200/50 transition-transform duration-300 cursor-pointer mb-2 px-2">
+                    <img src="{% static 'img/signout.png' %}"  class="h-8 w-8">
+                    <p class="mx-4">Sign out</p>
+                </a>
 
             {% else %}
                 <div class="flex items-center relative flex-col">
