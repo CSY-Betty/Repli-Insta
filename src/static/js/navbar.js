@@ -26,10 +26,7 @@ function writePost() {
 
 		const csrfToken = formData.get('csrfmiddlewaretoken');
 
-		const author = document.getElementById('userId').innerText;
-		formData.append('author', author);
-
-		const url = '/posts/post/create/';
+		const url = '/posts/test/';
 		const originUrl = window.location.origin;
 		const postUrl = `${originUrl}${url}`;
 
@@ -52,13 +49,19 @@ function writePost() {
 	});
 }
 
+let user;
+const loginStatusEvent = new Event('loginStatusChecked');
+
 async function checkLoginStatus() {
-	const user = await checkLogin();
+	user = await checkLogin();
 	if (user.user_id != 999) {
 		showWritePostForm();
 	}
+	document.dispatchEvent(loginStatusEvent);
 }
 
 document.addEventListener('DOMContentLoaded', function () {
 	checkLoginStatus();
 });
+
+export { user };

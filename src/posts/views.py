@@ -34,6 +34,7 @@ from rest_framework.mixins import (
     RetrieveModelMixin,
 )
 from rest_framework.views import APIView
+from django.db.models.query import QuerySet
 
 
 # Create your views here.
@@ -247,8 +248,17 @@ class CustomPostView(UpdateModelMixin, CreateModelMixin, DestroyModelMixin, APIV
     renderer_classes = [JSONOpenAPIRenderer]
 
     def get_object(self):
-        obj = get_object_or_404(Post, id=self.request.GET.get("id"))
-        return obj
+        post_id = self.request.GET.get("id")
+        author = self.request.GET.get("author")
+
+        queryset = Post.objects.all()
+
+        if post_id:
+            return get_object_or_404(Post, id=post_id)
+        elif author:
+            return queryset.filter(author=author)
+        else:
+            return None
 
     def get_serializer(self, *args, **kwargs):
         if self.request.method in ["PATCH", "POST"]:
@@ -300,18 +310,15 @@ class CustomPostView(UpdateModelMixin, CreateModelMixin, DestroyModelMixin, APIV
         )
 
     def get(self, request, *args, **kwargs):
-        post_id = request.GET.get("id")
+        post = self.get_object()
 
-        if post_id:
-            try:
-                post = Post.objects.get(id=post_id)
+        if post is not None:
+            if isinstance(post, QuerySet):
+                serializer = self.serializer_class(post, many=True)
+            else:
                 serializer = self.serializer_class(post)
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            except Post.DoesNotExist:
-                return Response(
-                    {"message": "Post not found"}, status=status.HTTP_404_NOT_FOUND
-                )
 
+            return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             queryset = Post.objects.all()
             serializer = self.serializer_class(queryset, many=True)
@@ -332,7 +339,7 @@ class CustomCommentView(ListCreateAPIView):
 
         if not queryset.exists():
             return Response(
-                {"message": "There is no such post."},
+                {"message": "There is no comments."},
                 status=status.HTTP_404_NOT_FOUND,
             )
         serializer = self.get_serializer(queryset, many=True)

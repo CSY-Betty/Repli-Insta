@@ -214,11 +214,17 @@ class CustomProfileView(UpdateModelMixin, ListAPIView):
     renderer_classes = [JSONOpenAPIRenderer]
 
     def get_object(self):
-        obj = get_object_or_404(Profile, id=self.request.GET.get("id"))
+        if "id" in self.request.GET:
+            obj = get_object_or_404(Profile, id=self.request.GET.get("id"))
+        elif "slug" in self.request.GET:
+            obj = get_object_or_404(Profile, slug=self.request.GET.get("slug"))
+        else:
+            obj = None
+
         return obj
 
     def get_serializer_class(self):
-        if "id" in self.request.GET:
+        if "id" in self.request.GET or "slug" in self.request.GET:
             return ProfilePostSerializer
         return ProfileSerializer
 
@@ -241,10 +247,9 @@ class CustomProfileView(UpdateModelMixin, ListAPIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request, *args, **kwargs):
-        author_id = request.GET.get("id")
+        profile = self.get_object()
 
-        if author_id:
-            profile = self.get_object()
+        if profile:
             serializer_class = self.get_serializer_class()
             serializer = serializer_class(profile)
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -320,7 +325,7 @@ class CustomRelationView(
 
     def delete(self, request, *args, **kwargs):
         user_profile = request.user.profile
-        friend_id = request.data.get("friend_id")
+        friend_id = request.query_params.get("friendId")
 
         queryset = self.get_queryset().filter(
             (Q(sender=user_profile) | Q(receiver=user_profile)),
