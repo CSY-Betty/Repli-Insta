@@ -18,7 +18,7 @@ export function timeCalculate(time) {
 
 export function checkPostLikeStatus(postData, user) {
 	if (postData && postData.liked && Array.isArray(postData.liked)) {
-		return postData.liked.includes(user.user_id);
+		return postData.liked.includes(user.user);
 	}
 	return false;
 }
