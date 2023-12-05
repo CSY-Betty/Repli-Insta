@@ -1,4 +1,4 @@
-from typing import Any
+# from typing import Any
 from django.shortcuts import render, get_object_or_404
 from .models import Profile, Relationship
 from django.db.models import Q
@@ -11,9 +11,10 @@ from .serializers import (
     ProfilePostSerializer,
     RelationshipSerializer,
 )
-from posts.models import Post
 
-from posts.serializers import PostSerializer
+# from posts.models import Post
+
+# from posts.serializers import PostSerializer
 from rest_framework.response import Response
 from rest_framework.renderers import JSONOpenAPIRenderer
 from rest_framework.generics import (
@@ -23,11 +24,13 @@ from rest_framework.generics import (
     DestroyAPIView,
 )
 
-from rest_framework.mixins import UpdateModelMixin, CreateModelMixin, DestroyModelMixin
+# from rest_framework.mixins import UpdateModelMixin, CreateModelMixin, DestroyModelMixin
+from rest_framework.mixins import UpdateModelMixin
 
 from rest_framework import status
 from django.contrib.auth.mixins import LoginRequiredMixin
-from rest_framework.views import APIView
+
+# from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 
 
@@ -59,152 +62,152 @@ def likedposts_list(request):
     return render(request, "profiles/likedposts.html")
 
 
-class ProfileUpdateView(UpdateAPIView):
-    serializer_class = ProfileSerializer
-    renderer_classes = [JSONOpenAPIRenderer]
-    queryset = Profile.objects.all()
-    allowed_methods = ["PUT", "PATCH"]
+# class ProfileUpdateView(UpdateAPIView):
+#     serializer_class = ProfileSerializer
+#     renderer_classes = [JSONOpenAPIRenderer]
+#     queryset = Profile.objects.all()
+#     allowed_methods = ["PUT", "PATCH"]
 
-    def get_object(self):
-        return self.queryset.get(user=self.request.user)
-
-
-class ProfileListView(ListAPIView):
-    serializer_class = ProfileSerializer
-    renderer_classes = [JSONOpenAPIRenderer]
-
-    def get_queryset(self):
-        user = self.request.user
-        queryset = Profile.objects.get_all_profiles(user)
-
-        return queryset
-
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
-
-        return Response(serializer.data)
+#     def get_object(self):
+#         return self.queryset.get(user=self.request.user)
 
 
-class ProfilePostView(ListAPIView):
-    serializer_class = ProfilePostSerializer
-    renderer_classes = [JSONOpenAPIRenderer]
+# class ProfileListView(ListAPIView):
+#     serializer_class = ProfileSerializer
+#     renderer_classes = [JSONOpenAPIRenderer]
 
-    def get(self, request, *args, **kwargs):
-        slug = request.GET.get("slug")
-        profile = Profile.objects.get(slug=slug)
-        serializer = ProfilePostSerializer(profile)
+#     def get_queryset(self):
+#         user = self.request.user
+#         queryset = Profile.objects.get_all_profiles(user)
 
-        return Response(serializer.data)
+#         return queryset
 
+#     def list(self, request, *args, **kwargs):
+#         queryset = self.get_queryset()
+#         serializer = self.get_serializer(queryset, many=True)
 
-class RelationshipListView(ListAPIView):
-    serializer_class = RelationshipSerializer
-    renderer_classes = [JSONOpenAPIRenderer]
-
-    def get_queryset(self):
-        user = self.request.user
-        queryset = Relationship.objects.filter(
-            Q(sender=user.profile) | Q(receiver=user.profile)
-        )
-        return queryset
+#         return Response(serializer.data)
 
 
-class CreateRelationView(CreateAPIView, LoginRequiredMixin):
-    serializer_class = RelationshipSerializer
-    renderer_classes = [JSONOpenAPIRenderer]
+# class ProfilePostView(ListAPIView):
+#     serializer_class = ProfilePostSerializer
+#     renderer_classes = [JSONOpenAPIRenderer]
 
-    def perform_create(self, serializer):
-        sender_profile = self.request.user.profile
-        receiver_id = self.request.data.get("receiver", None)
+#     def get(self, request, *args, **kwargs):
+#         slug = request.GET.get("slug")
+#         profile = Profile.objects.get(slug=slug)
+#         serializer = ProfilePostSerializer(profile)
 
-        try:
-            receiver_profile = Profile.objects.get(user__id=receiver_id)
-        except Profile.DoesNotExist:
-            return JsonResponse({"error": "Receiver profile not found."}, status=404)
-
-        serializer.save(sender=sender_profile, receiver=receiver_profile)
-
-        return Response(
-            {"message": "Relationship created successfully."},
-            status=status.HTTP_201_CREATED,
-        )
+#         return Response(serializer.data)
 
 
-class AcceptRelationView(UpdateAPIView, LoginRequiredMixin):
-    serializer_class = RelationshipSerializer
-    renderer_classes = [JSONOpenAPIRenderer]
+# class RelationshipListView(ListAPIView):
+#     serializer_class = RelationshipSerializer
+#     renderer_classes = [JSONOpenAPIRenderer]
 
-    def get_queryset(self):
-        user = self.request.user.profile
-        sender_id = self.request.data.get("sender")
-
-        return Relationship.objects.filter(
-            receiver=user, sender__id=sender_id, status="send"
-        )
-
-    def perform_update(self, serializer):
-        serializer.save(status="accepted")
-
-    def get_object(self):
-        sender_id = self.request.data.get("sender")
-        queryset = self.get_queryset()
-
-        return get_object_or_404(queryset, sender__id=sender_id)
-
-    def put(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
+#     def get_queryset(self):
+#         user = self.request.user
+#         queryset = Relationship.objects.filter(
+#             Q(sender=user.profile) | Q(receiver=user.profile)
+#         )
+#         return queryset
 
 
-class RejectRelationshipView(DestroyAPIView, LoginRequiredMixin):
-    serializer_class = RelationshipSerializer
-    renderer_classes = [JSONOpenAPIRenderer]
-    lookup_field = "sender__id"
+# class CreateRelationView(CreateAPIView, LoginRequiredMixin):
+#     serializer_class = RelationshipSerializer
+#     renderer_classes = [JSONOpenAPIRenderer]
 
-    def get_queryset(self):
-        user = self.request.user.profile
-        sender_id = self.request.data.get("sender")
+#     def perform_create(self, serializer):
+#         sender_profile = self.request.user.profile
+#         receiver_id = self.request.data.get("receiver", None)
 
-        return Relationship.objects.filter(
-            receiver=user, sender__id=sender_id, status="send"
-        )
+#         try:
+#             receiver_profile = Profile.objects.get(user__id=receiver_id)
+#         except Profile.DoesNotExist:
+#             return JsonResponse({"error": "Receiver profile not found."}, status=404)
 
-    def perform_destroy(self, instance):
-        instance.delete()
+#         serializer.save(sender=sender_profile, receiver=receiver_profile)
 
-    def delete(self, request, *args, **kwargs):
-        return self.destroy(request, *args, **kwargs)
+#         return Response(
+#             {"message": "Relationship created successfully."},
+#             status=status.HTTP_201_CREATED,
+#         )
 
 
-class RemoveRelationshipView(DestroyAPIView, LoginRequiredMixin):
-    serializer_class = RelationshipSerializer
-    renderer_classes = [JSONOpenAPIRenderer]
-    queryset = Relationship.objects.filter(status="accepted")
-    lookup_field = "pk"
+# class AcceptRelationView(UpdateAPIView, LoginRequiredMixin):
+#     serializer_class = RelationshipSerializer
+#     renderer_classes = [JSONOpenAPIRenderer]
 
-    def delete(self, request, *args, **kwargs):
-        user_profile = request.user.profile
-        counterpart_profile_id = request.data.get("counterpart_profile_id")
+#     def get_queryset(self):
+#         user = self.request.user.profile
+#         sender_id = self.request.data.get("sender")
 
-        queryset = self.get_queryset().filter(
-            (Q(sender=user_profile) | Q(receiver=user_profile)),
-            (
-                Q(sender_id=counterpart_profile_id)
-                | Q(receiver_id=counterpart_profile_id)
-            ),
-        )
+#         return Relationship.objects.filter(
+#             receiver=user, sender__id=sender_id, status="send"
+#         )
 
-        if queryset.exists():
-            # 使用 DestroyAPIView 的 destroy 方法
-            queryset.delete()
-            return Response(
-                {"message": "Friend removed successfully"}, status=status.HTTP_200_OK
-            )
-        else:
-            return Response(
-                {"message": "Friend relationship not found"},
-                status=status.HTTP_404_NOT_FOUND,
-            )
+#     def perform_update(self, serializer):
+#         serializer.save(status="accepted")
+
+#     def get_object(self):
+#         sender_id = self.request.data.get("sender")
+#         queryset = self.get_queryset()
+
+#         return get_object_or_404(queryset, sender__id=sender_id)
+
+#     def put(self, request, *args, **kwargs):
+#         return self.update(request, *args, **kwargs)
+
+
+# class RejectRelationshipView(DestroyAPIView, LoginRequiredMixin):
+#     serializer_class = RelationshipSerializer
+#     renderer_classes = [JSONOpenAPIRenderer]
+#     lookup_field = "sender__id"
+
+#     def get_queryset(self):
+#         user = self.request.user.profile
+#         sender_id = self.request.data.get("sender")
+
+#         return Relationship.objects.filter(
+#             receiver=user, sender__id=sender_id, status="send"
+#         )
+
+#     def perform_destroy(self, instance):
+#         instance.delete()
+
+#     def delete(self, request, *args, **kwargs):
+#         return self.destroy(request, *args, **kwargs)
+
+
+# class RemoveRelationshipView(DestroyAPIView, LoginRequiredMixin):
+#     serializer_class = RelationshipSerializer
+#     renderer_classes = [JSONOpenAPIRenderer]
+#     queryset = Relationship.objects.filter(status="accepted")
+#     lookup_field = "pk"
+
+#     def delete(self, request, *args, **kwargs):
+#         user_profile = request.user.profile
+#         counterpart_profile_id = request.data.get("counterpart_profile_id")
+
+#         queryset = self.get_queryset().filter(
+#             (Q(sender=user_profile) | Q(receiver=user_profile)),
+#             (
+#                 Q(sender_id=counterpart_profile_id)
+#                 | Q(receiver_id=counterpart_profile_id)
+#             ),
+#         )
+
+#         if queryset.exists():
+#             # 使用 DestroyAPIView 的 destroy 方法
+#             queryset.delete()
+#             return Response(
+#                 {"message": "Friend removed successfully"}, status=status.HTTP_200_OK
+#             )
+#         else:
+#             return Response(
+#                 {"message": "Friend relationship not found"},
+#                 status=status.HTTP_404_NOT_FOUND,
+#             )
 
 
 @method_decorator(login_required, name="patch")

@@ -204,8 +204,6 @@ export function createPostLikeContainer(postData, postTime, postLikeStatus) {
 	);
 
 	const postTimeText = document.createElement('div');
-	// postTime.classList.add('text-xs', 'px-2');
-	// let time = timeCalculate(postData.created);
 	postTimeText.innerText = postTime;
 
 	const postLike = document.createElement('div');
@@ -214,11 +212,6 @@ export function createPostLikeContainer(postData, postTime, postLikeStatus) {
 	const postLikeNumber = document.createElement('div');
 	postLikeNumber.classList.add('postLikeNumber', 'ml-auto', 'px-2');
 	postLikeNumber.innerText = postData.liked.length + ' ' + 'Likes';
-
-	// const user = await checkLogin();
-	// let postLikeButton;
-	// if (user.user_id != 999) {
-	// const postLikeStatus = await checkPostLikeStatus(postData.post_id);
 
 	const postLikeButton = document.createElement('img');
 
@@ -270,7 +263,6 @@ export function createCommentForm(postId) {
 		'h-10',
 		'py-2',
 		'px-3',
-		// 'font-medium',
 		'w-full'
 	);
 	commentText.setAttribute('required', true);
@@ -424,7 +416,18 @@ export async function createFriendStatusContainer(friendOptions) {
 			);
 		} else {
 			friendStatusContainer.innerText = 'Add friend';
-			friendStatusContainer.classList.add('addFriend', 'cursor-pointer');
+			friendStatusContainer.classList.add(
+				'addFriend',
+				'cursor-pointer',
+				'flex',
+				'justify-center',
+				'items-center',
+				'bg-rose-300',
+				'hover:bg-rose-400',
+				'rounded',
+				'w-24',
+				'h-10'
+			);
 		}
 
 		authorInfo.appendChild(friendStatusContainer);
