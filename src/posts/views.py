@@ -1,23 +1,9 @@
 from django.shortcuts import render
 from .models import Post, Like, Comment
 
-# from django.http import JsonResponse
-# from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
-
-# from django.core.serializers import serialize
+from django.db.models.query import QuerySet
 from django.utils.decorators import method_decorator
-
-# from django.http import QueryDict
-# import json
-# from .serializers import (
-#     PostProfileSerializer,
-#     PostSerializer,
-#     CommentSerializer,
-#     LikePostSerializer,
-#     UpdatePostSerializer,
-#     DeletePostSerializer,
-# )
 
 from .serializers import (
     PostSerializer,
@@ -25,22 +11,9 @@ from .serializers import (
     LikePostSerializer,
 )
 
-# from rest_framework.generics import (
-#     ListAPIView,
-#     CreateAPIView,
-#     UpdateAPIView,
-#     ListCreateAPIView,
-#     DestroyAPIView,
-#     get_object_or_404,
-# )
-
-
 from rest_framework.generics import (
-    # ListAPIView,
     CreateAPIView,
-    # UpdateAPIView,
     ListCreateAPIView,
-    # DestroyAPIView,
     get_object_or_404,
 )
 from rest_framework.response import Response
@@ -48,22 +21,14 @@ from rest_framework.renderers import JSONOpenAPIRenderer
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 
-# from rest_framework.mixins import (
-#     CreateModelMixin,
-#     UpdateModelMixin,
-#     DestroyModelMixin,
-#     RetrieveModelMixin,
-# )
 
 from rest_framework.mixins import (
     CreateModelMixin,
     UpdateModelMixin,
     DestroyModelMixin,
-    # RetrieveModelMixin,
 )
 
 from rest_framework.views import APIView
-from django.db.models.query import QuerySet
 
 
 # Create your views here.
@@ -71,154 +36,6 @@ from django.db.models.query import QuerySet
 
 def posts(request):
     return render(request, "posts/posts.html")
-
-
-# class PostsListView(ListAPIView):
-#     serializer_class = PostProfileSerializer
-#     renderer_classes = [JSONOpenAPIRenderer]
-
-#     def get_queryset(self):
-#         return Post.objects.all()
-
-#     def list(self, request, *args, **kwargs):
-#         queryset = self.get_queryset()
-#         serializer = self.get_serializer(queryset, many=True)
-
-#         return Response(serializer.data)
-
-
-# class PostView(ListAPIView):
-#     serializer_class = PostProfileSerializer
-#     renderer_classes = [JSONOpenAPIRenderer]
-
-#     def get_queryset(self):
-#         post_id = self.request.query_params.get("post_id")
-
-#         return Post.objects.filter(id=post_id)
-
-#     def list(self, request, *args, **kwargs):
-#         queryset = self.get_queryset()
-#         serializer = self.get_serializer(queryset, many=True)
-
-#         return Response(serializer.data)
-
-
-# class CreatePostView(CreateAPIView):
-#     serializer_class = PostSerializer
-#     enderer_classes = [JSONOpenAPIRenderer]
-
-#     def perform_create(self, serializer):
-#         received_data = self.request.data
-#         print("Received data:", received_data)
-
-#         print("Performing additional logic before creating Comment...")
-
-#         super().perform_create(serializer)
-
-
-# class CommentView(ListAPIView):
-#     serializer_class = CommentSerializer
-#     renderer_classes = [JSONOpenAPIRenderer]
-
-#     def get_queryset(self):
-#         post_id = self.request.query_params.get("post_id")
-
-#         return Comment.objects.filter(post__id=post_id)
-
-#     def list(self, request, *args, **kwargs):
-#         queryset = self.get_queryset()
-#         serializer = self.get_serializer(queryset, many=True)
-
-#         return Response(serializer.data)
-
-
-# class CreateCommentView(CreateAPIView):
-#     serializer_class = CommentSerializer
-#     renderer_classes = [JSONOpenAPIRenderer]
-
-
-# class LikePostView(ListCreateAPIView):
-#     serializer_class = LikePostSerializer
-#     renderer_classes = [JSONOpenAPIRenderer]
-#     permission_classes = [IsAuthenticated]
-
-#     def get_queryset(self):
-#         user_profile = self.request.user.profile
-#         post_id = self.kwargs.get("post_id")
-
-#         return Like.objects.filter(user=user_profile, post_id=post_id)
-
-#     def list(self, request, *args, **kwargs):
-#         queryset = self.get_queryset()
-#         serializer = self.get_serializer(queryset, many=True)
-
-#         return Response(serializer.data)
-
-#     def create(self, request, *args, **kwargs):
-#         post_id = self.kwargs.get("post_id")
-#         user_profile = request.user.profile
-#         like_data = {"user": user_profile.id, "post": post_id, "value": True}
-
-#         existing_like = Like.objects.filter(**like_data).first()
-
-#         if existing_like:
-#             existing_like.delete()
-
-#             post = Post.objects.get(id=post_id)
-#             post.liked.remove(user_profile)
-#             return Response(
-#                 {"message": "Like removed successfully."}, status=status.HTTP_200_OK
-#             )
-#         else:
-#             serializer = self.get_serializer(data=like_data)
-#             serializer.is_valid(raise_exception=True)
-#             self.perform_create(serializer)
-#             post = Post.objects.get(id=post_id)
-#             post.liked.add(user_profile)
-#             headers = self.get_success_headers(serializer.data)
-#             return Response(
-#                 serializer.data, status=status.HTTP_201_CREATED, headers=headers
-#             )
-
-
-# class UserLikedPostsView(ListAPIView):
-#     serializer_class = PostProfileSerializer
-#     renderer_classes = [JSONOpenAPIRenderer]
-#     permission_classes = [IsAuthenticated]
-
-#     def get_queryset(self):
-#         user_profile = self.request.user.profile
-#         liked_posts = Post.objects.filter(liked=user_profile)
-#         return liked_posts
-
-#     def list(self, request, *args, **kwargs):
-#         queryset = self.get_queryset()
-#         serializer = self.get_serializer(queryset, many=True)
-#         return Response(serializer.data)
-
-
-# class PostUpdateView(UpdateAPIView, LoginRequiredMixin):
-#     serializer_class = UpdatePostSerializer
-#     queryset = Post.objects.all()
-#     lookup_field = "id"
-
-
-# class PostDeleteView(DestroyAPIView, LoginRequiredMixin):
-#     serializer_class = DeletePostSerializer
-#     queryset = Post.objects.all()
-#     lookup_field = "id"
-
-#     def destroy(self, request, *args, **kwargs):
-#         try:
-#             instance = self.get_object()
-#             self.perform_destroy(instance)
-#             return Response(
-#                 {"message": "Post deleted successfully"}, status=status.HTTP_200_OK
-#             )
-#         except Exception as e:
-#             return Response(
-#                 {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-#             )
 
 
 @method_decorator(login_required, name="post")

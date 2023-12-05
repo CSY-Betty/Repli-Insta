@@ -9,8 +9,6 @@ import {
 	removeFriend,
 } from './profilesData/friendsCRUD.js';
 
-import { checkLogin } from './auth/logStatus.js';
-
 async function renderFriendList(userData) {
 	const friendsData = await getFriendsData();
 
@@ -47,7 +45,10 @@ function addFriendEventListeners() {
 }
 
 async function getUserProfile(user) {
-	return await getProfileData(user.user_id);
+	if (user.user_id != 999) {
+		return await getProfileData(user.user_id);
+	}
+	return null;
 }
 
 document.addEventListener('loginStatusChecked', async function () {
