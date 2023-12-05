@@ -1,3 +1,4 @@
+import { user } from './navbar.js';
 import {
 	getPostsData,
 	getPostData,
@@ -32,8 +33,6 @@ import {
 	acceptRejectFriend,
 	removeFriend,
 } from './profilesData/friendsCRUD.js';
-
-import { checkLogin } from './auth/logStatus.js';
 
 function renderPosts(userData) {
 	getPostsData().then((postsData) => {
@@ -259,8 +258,7 @@ function visitAuthor(authorData) {
 	window.location.href = '/profiles/' + slug;
 }
 
-async function checkUser() {
-	const user = await checkLogin();
+async function getUserProfile(user) {
 	if (user.user_id != 999) {
 		return await getProfileData(user.user_id);
 	}
@@ -268,9 +266,7 @@ async function checkUser() {
 }
 
 document.addEventListener('loginStatusChecked', async function () {
-	const userData = await checkUser();
+	const userData = await getUserProfile(user);
 	renderPosts(userData);
 	renderPost(userData);
-	// const renderComplete = new Event('renderComplete');
-	// document.dispatchEvent(renderComplete);
 });

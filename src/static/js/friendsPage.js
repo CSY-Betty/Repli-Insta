@@ -1,3 +1,4 @@
+import { user } from './navbar.js';
 import { createFriendsContainer } from './profiles/friendsContainer.js';
 
 import { getProfileData } from './profilesData/profileCRU.js';
@@ -45,15 +46,11 @@ function addFriendEventListeners() {
 	});
 }
 
-async function checkUser() {
-	const user = await checkLogin();
-	if (user.user_id != 999) {
-		return await getProfileData(user.user_id);
-	}
-	return null;
+async function getUserProfile(user) {
+	return await getProfileData(user.user_id);
 }
 
-document.addEventListener('DOMContentLoaded', async function () {
-	const userData = await checkUser();
+document.addEventListener('loginStatusChecked', async function () {
+	const userData = await getUserProfile(user);
 	renderFriendList(userData);
 });
