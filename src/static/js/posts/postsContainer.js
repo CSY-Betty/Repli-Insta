@@ -21,7 +21,7 @@ export function createPostsContainer(postsData) {
 		);
 
 		const postImage = document.createElement('img');
-		postImage.classList.add('post_image', 'w-full', 'h-64');
+		postImage.classList.add('post_image', 'w-full', 'h-64', 'object-cover');
 		if (post.image) {
 			postImage.src = post.image;
 		} else {
@@ -110,11 +110,6 @@ export function createPostContainer(postData, authorData) {
 	const authorName = document.createElement('div');
 	authorName.innerText = authorData.first_name;
 
-	// const addAuthor = document.createElement('div');
-	// addAuthor.id = 'addAuthor';
-	// addAuthor.classList.add('text-rose-400', 'cursor-pointer', 'ml-auto');
-	// addAuthor.dataset.authorId = postData.author;
-
 	const postContent = document.createElement('div');
 	postContent.classList.add(
 		'px-6',
@@ -129,8 +124,6 @@ export function createPostContainer(postData, authorData) {
 
 	authorInfo.appendChild(authorAvatar);
 	authorInfo.appendChild(authorName);
-
-	// authorInfo.appendChild(addAuthor);
 
 	postInfo.appendChild(authorInfo);
 	postInfo.appendChild(postContent);
@@ -151,11 +144,11 @@ export function createCommentsContainer(commentsData) {
 		'flex-col',
 		'px-6',
 		'py-2',
-		'overflow-y-scroll',
 		'h-2/6',
 		'mt-3/5',
 		'border-b',
-		'w-full'
+		'w-full',
+		'overflow-y-auto'
 	);
 	if (Array.isArray(commentsData) && commentsData.length > 0) {
 		commentsData.reverse().forEach((comment) => {
@@ -173,7 +166,11 @@ export function createCommentsContainer(commentsData) {
 
 			const commentContent = document.createElement('div');
 			commentContent.innerText = comment.body;
-			commentContent.classList.add('px-2');
+			commentContent.classList.add(
+				'px-2',
+				'whitespace-normal',
+				'break-all'
+			);
 
 			commenterInfo.appendChild(commentAvatar);
 			commenterInfo.appendChild(commentContent);
@@ -261,9 +258,11 @@ export function createCommentForm(postId) {
 		'leading-normal',
 		'resize-none',
 		'h-10',
-		'py-2',
-		'px-3',
-		'w-full'
+		'pt-2',
+		'px-2',
+		'w-full',
+		'overflow-y-auto'
+		// 'text-xl'
 	);
 	commentText.setAttribute('required', true);
 
