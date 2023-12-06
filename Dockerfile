@@ -1,15 +1,12 @@
-# 第一階段：使用 Node.js 的基礎映像安裝 Node.js 相依套件
-FROM node:14 AS node_build
-WORKDIR /Repli-Insta
-COPY package*.json /Repli-Insta/
-RUN npm install
+# FROM --platform=linux/amd64 python:3.9-slim
 
+FROM python:3.9-slim
 
-# 第二階段：使用 Python 的基礎映像安裝 Python 相依套件
-FROM --platform=linux/amd64 python:3.9-slim AS python_build
 WORKDIR /Repli-Insta
 
-COPY --from=node_build /Repli-Insta/node_modules ./node_modules
+RUN pip install --no-cache-dir --upgrade pip
+RUN apt-get update && apt-get install -y pkg-config
+
 COPY . .
 
 RUN pip install --no-cache-dir -r requirements.txt
