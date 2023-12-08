@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     "allauth.socialaccount",
     # djangorestframework
     "rest_framework",
+    "drf_yasg",
 ]
 
 LOGIN_URL = "/accounts/login"
