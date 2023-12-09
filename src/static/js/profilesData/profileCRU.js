@@ -1,5 +1,5 @@
 export function getProfileData(authorId) {
-	const url = `/profiles/testprofile/?id=${authorId}`;
+	const url = `/profiles/profile/?id=${authorId}`;
 	const originUrl = window.location.origin;
 	const postsDataUrl = `${originUrl}${url}`;
 
@@ -20,7 +20,7 @@ export function getProfileBySlug() {
 	const currentUrl = window.location.href;
 	const urlParts = currentUrl.split('/');
 	const lastPart = urlParts[urlParts.length - 2];
-	const url = `/profiles/testprofile/?slug=${lastPart}`;
+	const url = `/profiles/profile/?slug=${lastPart}`;
 
 	const originUrl = window.location.origin;
 	const postsDataUrl = `${originUrl}${url}`;
@@ -39,7 +39,7 @@ export function getProfileBySlug() {
 }
 
 export function updateProfile(userId, formData) {
-	const url = `/profiles/testprofile/?id=${userId}`;
+	const url = `/profiles/profile/?id=${userId}`;
 	const originUrl = window.location.origin;
 	const updateProfileUrl = `${originUrl}${url}`;
 

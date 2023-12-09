@@ -18,7 +18,7 @@ urlpatterns = [
         name="testfriends",
     ),
     path(
-        "testprofile/",
+        "profile/",
         CustomProfileView.as_view(),
         name="testprofile",
     ),
