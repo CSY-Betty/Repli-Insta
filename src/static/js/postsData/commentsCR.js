@@ -1,5 +1,5 @@
 export function getCommentsData(postId) {
-	const url = `/posts/testcomment/?id=${postId}`;
+	const url = `/posts/comment/?id=${postId}`;
 	const originUrl = window.location.origin;
 	const commentsDataUrl = `${originUrl}${url}`;
 
@@ -17,7 +17,7 @@ export function getCommentsData(postId) {
 }
 
 export function createComment(postId, commentBody) {
-	const url = `/posts/testcomment/?id=${postId}`;
+	const url = `/posts/comment/?id=${postId}`;
 	const originUrl = window.location.origin;
 	const createCommentUrl = `${originUrl}${url}`;
 

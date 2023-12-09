@@ -11,6 +11,6 @@ app_name = "posts"
 urlpatterns = [
     path("", posts, name="main-post-view"),
     path("post/", CustomPostView.as_view(), name="test"),
-    path("testcomment/", CustomCommentView.as_view(), name="testcomment"),
+    path("comment/", CustomCommentView.as_view(), name="testcomment"),
     path("testlike/", CustomLikePostView.as_view(), name="testlike"),
 ]
