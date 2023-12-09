@@ -13,7 +13,7 @@ app_name = "profiles"
 
 urlpatterns = [
     path(
-        "testfriends/",
+        "friends/",
         CustomRelationView.as_view(),
         name="testfriends",
     ),

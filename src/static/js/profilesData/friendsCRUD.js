@@ -1,5 +1,5 @@
 export function getFriendsData() {
-	const url = `/profiles/testfriends/`;
+	const url = `/profiles/friends/`;
 	const originUrl = window.location.origin;
 	const friendsDataUrl = `${originUrl}${url}`;
 
@@ -17,7 +17,7 @@ export function getFriendsData() {
 }
 
 export function addFriend(receiver) {
-	const url = `/profiles/testfriends/`;
+	const url = `/profiles/friends/`;
 	const originUrl = window.location.origin;
 	const addFriendUrl = `${originUrl}${url}`;
 
@@ -46,7 +46,7 @@ export function addFriend(receiver) {
 }
 
 export function acceptRejectFriend(sender, action) {
-	const url = `/profiles/testfriends/`;
+	const url = `/profiles/friends/`;
 	const originUrl = window.location.origin;
 	const acceptRejectFriendUrl = `${originUrl}${url}`;
 
@@ -77,7 +77,7 @@ export function acceptRejectFriend(sender, action) {
 
 export function removeFriend(friend_id) {
 	console.log(friend_id);
-	const url = `/profiles/testfriends/?friendId=${friend_id}`;
+	const url = `/profiles/friends/?friendId=${friend_id}`;
 	const originUrl = window.location.origin;
 	const removeFriendUrl = `${originUrl}${url}`;
 
