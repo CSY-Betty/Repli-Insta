@@ -10,7 +10,7 @@ app_name = "posts"
 
 urlpatterns = [
     path("", posts, name="main-post-view"),
-    path("test/", CustomPostView.as_view(), name="test"),
+    path("post/", CustomPostView.as_view(), name="test"),
     path("testcomment/", CustomCommentView.as_view(), name="testcomment"),
     path("testlike/", CustomLikePostView.as_view(), name="testlike"),
 ]

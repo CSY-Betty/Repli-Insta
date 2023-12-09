@@ -26,7 +26,7 @@ function writePost() {
 
 		const csrfToken = formData.get('csrfmiddlewaretoken');
 
-		const url = '/posts/test/';
+		const url = '/posts/post/';
 		const originUrl = window.location.origin;
 		const postUrl = `${originUrl}${url}`;
 

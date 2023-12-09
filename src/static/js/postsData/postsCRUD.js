@@ -1,5 +1,5 @@
 export function getPostsData(author = null) {
-	const url = '/posts/test/';
+	const url = '/posts/post/';
 	const queryParams = author ? `?author=${author}` : '';
 	const originUrl = window.location.origin;
 	const postsDataUrl = `${originUrl}${url}${queryParams}`;
@@ -18,7 +18,7 @@ export function getPostsData(author = null) {
 }
 
 export function getPostData(postId) {
-	const url = `/posts/test/?id=${postId}`;
+	const url = `/posts/post/?id=${postId}`;
 	const originUrl = window.location.origin;
 	const postsDataUrl = `${originUrl}${url}`;
 
@@ -36,7 +36,7 @@ export function getPostData(postId) {
 }
 
 export function updatePost(postId, formData) {
-	const url = `/posts/test/?id=${postId}`;
+	const url = `/posts/post/?id=${postId}`;
 	const originUrl = window.location.origin;
 	const updatePostUrl = `${originUrl}${url}`;
 
@@ -60,7 +60,7 @@ export function updatePost(postId, formData) {
 }
 
 export function deletePost(postId) {
-	const url = `/posts/test/?id=${postId}`;
+	const url = `/posts/post/?id=${postId}`;
 	const originUrl = window.location.origin;
 	const updatePostUrl = `${originUrl}${url}`;
 

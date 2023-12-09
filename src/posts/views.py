@@ -30,6 +30,11 @@ from rest_framework.mixins import (
 
 from rest_framework.views import APIView
 
+# swagger
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
+from rest_framework.parsers import FormParser, MultiPartParser
+
 
 # Create your views here.
 
@@ -46,6 +51,7 @@ class CustomPostView(UpdateModelMixin, CreateModelMixin, DestroyModelMixin, APIV
     queryset = Post.objects.all()
     lookup_field = "id"
     renderer_classes = [JSONOpenAPIRenderer]
+    parser_classes = (FormParser, MultiPartParser)
 
     def get_object(self):
         post_id = self.request.GET.get("id")
@@ -65,6 +71,9 @@ class CustomPostView(UpdateModelMixin, CreateModelMixin, DestroyModelMixin, APIV
             kwargs["context"] = {"request": self.request}
         return self.serializer_class(*args, **kwargs)
 
+    @swagger_auto_schema(
+        operation_description="建立  Posts",
+    )
     def post(self, request, *args, **kwargs):
         data = request.data
         data["author"] = request.user.id
@@ -109,6 +118,23 @@ class CustomPostView(UpdateModelMixin, CreateModelMixin, DestroyModelMixin, APIV
             {"message": "Post deleted successfully"}, status=status.HTTP_200_OK
         )
 
+    @swagger_auto_schema(
+        operation_description="取得 Posts",
+        manual_parameters=[
+            openapi.Parameter(
+                name="ID",
+                in_=openapi.IN_QUERY,
+                description="User ID",
+                type=openapi.TYPE_INTEGER,
+            ),
+            openapi.Parameter(
+                name="Author",
+                in_=openapi.IN_QUERY,
+                description="Author ID",
+                type=openapi.TYPE_INTEGER,
+            ),
+        ],
+    )
     def get(self, request, *args, **kwargs):
         post = self.get_object()
 
