@@ -1,5 +1,5 @@
 export function updateLike(postId) {
-	const url = `/posts/testlike/?id=${postId}`;
+	const url = `/posts/like/?id=${postId}`;
 	const originUrl = window.location.origin;
 	const updateLike = `${originUrl}${url}`;
 
