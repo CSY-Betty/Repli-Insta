@@ -51,8 +51,34 @@ async function renderProfileInfo(profileData, userData) {
 				friendStatus
 			);
 			createFriendStatusContainer(friendOptions);
+			addProfileEventListeners(profileData);
 		}
 	}
+}
+
+function addProfileEventListeners(authorData) {
+	const profileInfo = document.getElementById('profileInfo');
+
+	profileInfo.addEventListener('click', (event) => {
+		const acceptFriendButton = event.target.closest('.acceptFriend');
+		const rejectFriendButton = event.target.closest('.rejectFriend');
+		const removeFriendButton = event.target.closest('.removeFriend');
+		const addFriendButton = event.target.closest('.addFriend');
+
+		if (acceptFriendButton) {
+			acceptRejectFriend(authorData.user, 'accept');
+			location.reload();
+		} else if (rejectFriendButton) {
+			acceptRejectFriend(authorData.user, 'reject');
+			location.reload();
+		} else if (removeFriendButton) {
+			removeFriend(authorData.user);
+			location.reload();
+		} else if (addFriendButton) {
+			addFriend(authorData.user);
+			location.reload();
+		}
+	});
 }
 
 function renderPosts(profileData) {
