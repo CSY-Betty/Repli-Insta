@@ -41,31 +41,31 @@ The project exposes the following RESTful API endpoints:
 
 -   **Get Profile Info:** `GET /profiles/profile/?slug={user_slug}`
 -   **Create Profile:** `POST /profiles/profile/`
--   **Update Profile Info:** `PATCH /profiles/profile/?id={user_id}`
+-   **Update Profile Info:** `PATCH /profiles/profile/{user_id}`
 
 ### Post Management
 
 -   **Get All Posts:** `GET /posts/posts-list`
 -   **Get Post by ID:** `GET /posts/post/?id={post_id}`
 -   **Create Post:** `POST /posts/post`
--   **Update Post:** `PATCH /posts/post/?id={post_id}`
--   **Delete Post:** `DELETE /posts/post/?id={post_id}`
+-   **Update Post:** `PATCH /posts/post/{post_id}`
+-   **Delete Post:** `DELETE /posts/post/{post_id}`
 
 ### Comment Management
 
 -   **Get Comments for the post:** `GET /posts/comment/?id={post_id}`
--   **Create the Comment for the post:** `POST /posts/comment/?id={post_id}`
+-   **Create the Comment for the post:** `POST /posts/comment/{post_id}`
 
 ### Like Management
 
--   **Create Like or Unlike:** `POST /posts/like/?id={post_id}`
+-   **Create Like or Unlike:** `POST /posts/like/{post_id}`
 
 ### Friends Management
 
 -   **Get All Friends:** `GET /profiles/friends/`
 -   **Add Friend:** `POST /profiles/friends/`
 -   **Respond to Friend Request - accept or reject:** `PUT /profiles/friends/`
--   **Remove Friend:** `DELETE /profiles/friends/?friendId={friend_id}`
+-   **Remove Friend:** `DELETE /profiles/friends/{friend_id}`
 
 ## Usage
 
